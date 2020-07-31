@@ -54,9 +54,11 @@ Our dataset *‘Default of credit card clients’* consists of informations abou
  
  ## **Let’s get started!**
  
- We’ll load some packages into the session first, required in this project. Such as data.table, dplyr for data importing and wrangling, ggplot2, cowplot, pROC,     ROCR for visualization of data and other plotting, caret for models training and several other packages, using `library()` function. If the package is not installed then it has to be installed using `install.packages("package name")`. In our case, we have our packages installed, we just need bring them into our session.
+ #### **_Loading Packages_**
  
- ```r
+ We’ll load some packages into the session first, required in this project. Such as *data.table, dplyr* for data importing and wrangling, *ggplot2, cowplot, pROC,ROCR* for visualization of data and other plotting, *caret* for models training and several other packages, using `library()` function. If the package is not installed then it has to be installed using `install.packages("package name")`. In our case, we have our packages installed, we just need bring them into our session.
+ 
+ ```Rscript
  ##Loading the required libraries
 library(data.table)
 library(ggplot2)
