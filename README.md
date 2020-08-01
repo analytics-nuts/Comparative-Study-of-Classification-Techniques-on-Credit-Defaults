@@ -49,12 +49,14 @@ Our dataset *‘Default of credit card clients’* consists of informations abou
 1.	Plotting ROC curves and cumulative lift charts
 1.	Sorting smoothing method 
 1.	Scatter plot and linear regression line fitting and comparison study for the models
-1.	Conclusion 
+1.	Conclusion  
 
- 
- ## **Let’s get started!**
- 
- #### **_Loading Packages_**
+
+## **Let’s get started!**  
+
+#### **_Loading Packages_**  
+
+
  
  We’ll load some packages into the session first, required in this project. Such as *data.table, dplyr* for data importing and wrangling, *ggplot2, cowplot, pROC,ROCR* for visualization of data and diagonistic plotting, *caret* for models training and several other packages, using `library()` function. If the package is not installed then it has to be installed using `install.packages("package name")`. In our case, we have our packages installed, we just need bring them into our session.
  
