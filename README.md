@@ -349,7 +349,7 @@ target=credit$`default payment next month`
 (table(target)/length(target))
 ```
  
-```R
+```Rscript
 target
      0      1 
 0.7788 0.2212
@@ -399,7 +399,7 @@ auc2=numeric()
 
 We split the combined data-frame(or data-table) into two parts. One is training set, consists of 80% of the data, on which the model(s) will be trained and the other one is test set, consists of remaining 20% of the data, on which the model(s) will be validated.
 
-```R
+```Rscript
 #Splitting the into test and train sets in 80:20 ratio
 
 set.seed(666)#for reproducability of result
@@ -456,8 +456,12 @@ roc(train.logit$target,model.logit$fitted.values,plot=T,col="#69b3a2",print.auc=
 roc(test.logit$target,pred.logit,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
     xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
 ```
+![](images/plot_9.jpeg)
 
-
+```Rscript
+auc1[1]=0.772
+auc2[1]=0.769
+```
 
 
 
