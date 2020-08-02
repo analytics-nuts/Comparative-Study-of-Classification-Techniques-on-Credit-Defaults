@@ -321,7 +321,7 @@ There are some undocumented labels in the factor variables like EDUCATION and MA
 Similarly, we merge the labels 0 and 3 for MARRIAGE factor.As 3 implies divorce and 0 is other.
 These changes are appearing reasonable to me due to the updates in the definition of the variables in the discussion zone for this dataset in [Kaggle by ezboral](https://www.kaggle.com/uciml/default-of-credit-card-clients-dataset/discussion/34608).
 
- ```Rscript
+ ```{r}
  ## Feature Engineering
 
 ##Redefining the variables EDUCATIOn,Marriage according to the revised description of the dataset.
@@ -338,7 +338,7 @@ Of course there are scopes to go deeper into engineering more features like vari
 
 First converting the repayment statuses PAY_1 to PAY_6 into factor variables and storing the ‘default.payment.next.month’ in a factor object, named ‘target’.
 
-```Rscript
+```{r}
 df=as.data.frame(credit)
 df[c("PAY_1","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")]= lapply(df[c("PAY_1","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")]
                                                                         ,function(x) as.factor(x))
@@ -349,7 +349,7 @@ target=credit$`default payment next month`
 (table(target)/length(target))
 ```
  
-```Rscript
+```{r}
 target
      0      1 
 0.7788 0.2212
@@ -357,7 +357,7 @@ target
 
 We divide the whole data into two parts, quantitative and qualitative for future reference and one hot encoding (dummy encoding). 
 
-```Rscript
+```{r}
 ##Partitioning the whole data in quantitative and qualitative parts and defining the target
 quanti=credit[,c(-2:-4,-6:-11,-24)]
 quali=credit[,c(2:4,6:11)]
@@ -365,12 +365,12 @@ quali=credit[,c(2:4,6:11)]
  
 Then combine all the features quantitative and qualitative into one single data-frame.
 
-```Rscript
+```{r}
 all.features=cbind(quanti,quali,target)
 head(all.features)
 ```
 
-```Rscript
+```{r}
    LIMIT_BAL AGE BILL_AMT1 BILL_AMT2 BILL_AMT3 BILL_AMT4 BILL_AMT5 BILL_AMT6 PAY_AMT1 PAY_AMT2 PAY_AMT3 PAY_AMT4
 1:     20000  24      3913      3102       689         0         0         0        0      689        0        0
 2:    120000  26      2682      1725      2682      3272      3455      3261        0     1000     1000     1000
@@ -388,7 +388,7 @@ head(all.features)
 ```
 We will define a few empty numeric variables, which will be used for comparison of the models.
  
-```Rscript
+```{r}
 err1=numeric()
 err2=numeric() #Creating empty vectors for further comparisons
 auc1=numeric()
@@ -399,7 +399,7 @@ auc2=numeric()
 
 We split the combined data-frame(or data-table) into two parts. One is training set, consists of 80% of the data, on which the model(s) will be trained and the other one is test set, consists of remaining 20% of the data, on which the model(s) will be validated.
 
-```Rscript
+```{r}
 #Splitting the into test and train sets in 80:20 ratio
 
 set.seed(666)#for reproducability of result
@@ -422,8 +422,8 @@ For each of the six models we’ll perform the task according to the following t
 
 Logistic regression is a binary classification algorithm used to model the probability of an individual belonging to a class. Generally a binary response variable with two category (in our case default payment) denoted by ‘0’ and ‘1’ is regressed by logistic regression. In logistic model, the log of odds of the binary response to be ‘1’ is predicted by a linear regression equation that can include continuous as well as factor variables. However, the factor variables are needed to be encoded as one indicator variable for each label. The corresponding predicted probability of the value labeled as ‘1’ is converted to the class ‘1’ or ‘0’ by using threshold value.
 
-```Rscript
-##Fitting a logistic model
+```{r}
+##Fitting a logistic model##
 
 model.logit=glm(target~.,data=train.logit,family="binomial")
 
@@ -457,11 +457,159 @@ roc(test.logit$target,pred.logit,plot=T,col="navyblue",print.auc=T,legacy.axes=T
     xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
 ```
 ![](images/plot_9.jpeg)
-
-```Rscript
+```{r}
 auc1[1]=0.772
 auc2[1]=0.769
 ```
+
+## **_Linear Discriminant Analysis_**
+
+Linear discriminant analysis is a generalized version of Fisher’s discriminant rule. This method is also used in machine learning for classification problem. This model specifies that for each given class of response variable the posterior probability of a sample given the class follows multivariate normal distribution with common variance-covariance matrix. LDA also use linear combination of features for discriminating the different categories of the response variable and its objective is to maximize the distance between different categories and minimizing the distance within each category.
+ Besides the formula and training data, one more parameter prior is passed to the function lda(). *prior* is a vector specifying the prior probabilities of class membership. We will use the proportion of the classes in our dataset as our input.
+
+```{r}
+##Fitting a Linear discriminent model ##
+
+model.lda=lda(target~.,data=train.logit,prior=c(0.7788,0.2212))
+model.lda
+
+#For test set
+pred.lda=predict(model.lda,test.logit)
+
+data.frame(pred.lda$posterior)
+pred.lda.prob=pred.lda$posterior[,2]
+
+conf2=table(predict=pred.lda$class,true=test.logit$target)
+err2[2]= 1 - sum(diag(conf2))/sum(conf2)
+
+#For train set
+pred.lda.train=predict(model.lda,train.logit)
+data.frame(pred.lda.train$posterior)
+
+conf2.train=table(predict=pred.lda.train$class,true=train.logit$target)
+err1[2]= 1 - sum(diag(conf2.train))/sum(conf2.train)
+
+##Ploting ROC curve and AUC for test and train set
+
+par(mfrow=c(1,2))
+par(pty="s")
+
+roc(train.logit$target,pred.lda.train$posterior[,2],plot=T,col="#69b3a2",print.auc=T,legacy.axes=TRUE,percent = T,
+    xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Train Set")
+
+roc(test.logit$target,pred.lda.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
+    xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
+```
+![](images/plot_11.jpeg)
+
+```{r}
+auc1[2]=0.770
+auc2[2]=0.768
+```
+
+## **_K-Nearest Neighbor_**
+
+K-nearest neighbor is a non-parametric algorithm that can be used in classification problem. For a given sample a *KNN* classifier search for the pattern in the neighborhood of the sample and assign the sample to the class closest to the sample. In *KNN* classification the output is a class membership and the output class is obtained from the majority of votes from the neighbors. Closeness of the class is defined by the distance between the sample and the neighbors.
+The parameter *k* in the classifier is an integer, defines the no of member in the neighborhood to be considered. Here *k=1* implies the sample is assigned to the class of the single neighbor.
+We will use a for-loop to check for a range of values of k for which the model produces highest accuracy.
+
+```{r}
+##FItting K Nearest Neighbor classifier ##
+
+#Preprocessing the data
+
+# min-max normalization of quantitative features
+f=function(x)
+{
+ return((x-min(x))/(max(x)-min(x)))
+}
+
+quanti.norm=quanti
+
+setDF(quanti.norm)#Converting into data.frame
+
+for(i in 1:14){
+quanti.norm[,i]=f(quanti.norm[,i]) #Normalization
+}
+
+#Dummy encoding for factor variables
+quali.dummy=dummy.data.frame(quali)
+
+#Merging the normalized data and encoded dummies
+target=recode_factor(target,'0'="no",'1'="yes")
+
+data.knn=cbind(quanti.norm,quali.dummy,target)
+
+setDT(data.knn)#Converting into data.table
+
+#Test train split in 80:20 ratio
+set.seed(666) #For Reproducibility
+
+ind=sample(nrow(data.knn),nrow(data.knn)*0.8,replace = F)
+train.knn=data.knn[ind,]
+test.knn=data.knn[-ind,]
+
+trainy=train.knn$target
+
+model.list=list()#empty list
+v=numeric()
+
+set.seed(222)
+for(i in 1:30){
+  
+  model.list[[i]]=knn3(train.knn[,-88],trainy,k=i)
+  tab=table(prediction=predict(model.list[[i]],test.knn[,-88],type = "class"),truth=test.knn$target)
+  v[i]=sum(diag(tab)/sum(tab))
+  
+}
+which.max(v)
+plot(1:30,v,type="b",xlab="k",ylab="accuracy",main="Elbow plot",font.main=2,col="steelblue3",lwd=4)
+abline(v=19,col="orange")
+```
+
+```{r}
+model.knn=knn3(train.knn[,-88],trainy,k=19)#Best model in terms of accuracy
+
+#Prediction
+#Test set
+set.seed(666)
+conf3=table(prediction=predict(model.knn,test.knn[,-88],type = "class"),truth=test.knn$target)
+err2[3]=1 - sum(diag(conf3))/sum(conf3)
+
+knn.prob=predict(model.knn,test.knn[,-88],type="prob")[,2] #Probalities of "yes"
+
+#Training set
+set.seed(666)
+conf3.train=table(prediction=predict(model.knn,train.knn[,-88],type = "class"),truth=train.knn$target)
+err1[3]=1 - sum(diag(conf3.train))/sum(conf3.train)
+
+##Ploting ROC curve and AUC for test and train set
+par(mfrow=c(1,2))
+par(pty="s")
+
+roc(train.knn$target,predict(model.knn,train.knn[,-88],type="prob")[,2],plot=T,col="#69b3a2",print.auc=T,legacy.axes=TRUE,
+    percent = T,xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Train Set")
+
+
+roc(test.knn$target,knn.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
+    xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
+```
+
+```{r}
+auc1[3]=0.814
+auc2[3]=0.751
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
