@@ -216,7 +216,7 @@ summary(credit)
 
 Now we’ll scrutinize the correlations between the quantitative variables and will check if there are high correlation between some of the features. We employ correlation step plot.
 
-```R
+```Rscript
 ##Correlation analysis and Correlogram plot
 
 df=credit[,c(-2:-4,-24)] #Considering only quantitative variables
@@ -225,7 +225,7 @@ df=credit[,c(-2:-4,-24)] #Considering only quantitative variables
 ggcorr(df,method=c("everything", "pearson"))+ggtitle("Correlation Steps")
 ```
 
-
+![](images/plot_2.jpg)
 
  
  
