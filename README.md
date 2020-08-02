@@ -19,7 +19,7 @@ dataset available at [UCI machine-learning repository](https://archive.ics.uci.e
 
 The sole purpose of this project is to compare the six machine-learning models, namely *Logistic regression, Discriminant analysis, K-nearest neighbor, Support vector machine, XGBOOST and Artificial neural network* based on their accuracy of classification performane and effectiveness in representing the real probability of an individual belonging to the actual class.
 
- For assessment of classification accuracy, different measures such as classification error rate from confusion matrix, ROC curve and area under curve (AUC) are employed. For the assessment of accuracy of predicted probabilities, we’ll use the scatter plot of real probabilities of default(Y) vs predicted probability of default(x) from each of the six techniques. Then fit a linear regression line Y=A+Bx from the scatter plot and decide the best predicting model for which A is closest to 0 and B is closest to 1 and Rsq is highest.
+ For assessment of classification accuracy, different measures such as classification error rate from confusion matrix, ROC curve and area under curve (AUC) are employed. For the assessment of accuracy of predicted probabilities, we’ll use the scatter plot of real probabilities of default(Y) vs predicted probability of default(x) from each of the six techniques. Then fit a linear regression line Y=A+Bx from the scatter plot and decide the best predicting model for which A is closest to 0 and B is closest to 1 and R²  is highest.
  
  
 ## **About The Data Set**
@@ -618,7 +618,7 @@ The wide range of hyper parameters is one of the main reason of flexibility of t
 *	*early_stoping_rounds*:  the early stopping function is not triggered. If set to an integer k, training with a validation set will stop if the performance doesn't improve for k rounds.
 *	*label*: vector of response values.
 
-We will tune these parameters using caret package and ```xgb.train()``` to get the optimal values of the parameters that optimizes the chosen metric (accuracy or ROC).
+We will tune these parameters using caret package and ```train()``` function by enabling *parallel computing* to get the optimal values of the parameters that optimizes the chosen metric (accuracy or ROC).
 
 ```{r}
 ##FItting XGBoost classifier ##
@@ -770,7 +770,7 @@ roc(train.svm$target,as.data.frame(attr(predict(model.svm,newdata = train.svm[,-
 roc(test.svm$target,pred.svm.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
     xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
 ```
-
+![](images/plot_17.jpeg)
 ```{r}
 auc1[5] = 0.885
 auc2[5] = 0.670
@@ -836,7 +836,7 @@ ann.fit$bestTune
     
 plot(ann.fit)
 ```
-
+![](images/plot_28.jpeg)
 ```{r}
 ## Model Fitting based on the Grid Search
 set.seed(666)
@@ -869,6 +869,52 @@ roc(test.ann$target , pred.ann.prob , plot = T,col = "navyblue", print.auc = T, 
 auc1[6] = auc(train.ann$target , pred.ann.train.prob)
 auc2[6] = auc(test.ann$target , pred.ann.prob)      
 ```
+![](images/plot_19.jpeg)
+
+
+## **_Evaluation of Classification Performances_**
+
+To evaluate the classification performances of the six aforementioned models we employed the following measures:
+*	Error rate for training set
+*	Error rate for test/validation set
+*	Area under ROC for training set
+*	Area under ROC for test set
+
+```{r}
+## Classification Evaluation for the above six models##
+classification.eval=data.frame(Model=c("Logistic","LDA","KNN","XGBoost","SVM","ANN"),Train.Error=err1,
+                               Validation.Error=err2, Train.AUC=auc1, Validation.AUC=auc2)
+classification.eval
+```
+```{r}
+     Model Train.Error Validation.Error Train.AUC Validation.AUC
+1 Logistic   0.1778750        0.1800000 0.7720000      0.7690000
+2      LDA   0.1785417        0.1783333 0.7700000      0.7680000
+3      KNN   0.1767083        0.1767083 0.8140000      0.7510000
+4  XGBoost   0.1521250        0.1683333 0.8740000      0.7850000
+5      SVM   0.1606250        0.1721667 0.8850000      0.6700000
+6      ANN   0.1765000        0.1716667 0.7792848      0.7755674
+```
+From the above table, it can be observed that the model *XGBoost* has minimum error rate for test and train set and maximum AUC for train and test set. Hence, XGBoost classifier has definitely performed best among the six models as far as classification is concerned.
+
+## **_Sorting Smoothing Method_**
+
+Earlier we have compared the six models based on the measures like error rate and AUC. And observed that XGBoost has performed better than the other five models in terms of least error rate and maximum AUC. However, in risk management study the confidence of a model on an individual sample to belong to the class predicted by the model is of far more significance rather than just binary classification results like, ‘default’ or ‘non-default’. By the term ‘confidence’, we mean the accuracy of predicted probability of default.
+
+Since the real probability of default is unknown, the ‘Sorting Smoothing Method’, SSM is employed here to estimate the real probability of default.
+Firstly, according to the predictive probability from a model sort the validation or test set in ascending order. Then SSM is used to estimate real probability as follows:
+
+Pi=(Yi-n+……+Yi-1+Yi+Yi+1+…..+Yi+n )/(2*n+1)
+
+Pi=Estimated real probability of default for ith ordered sample in test set
+
+Yi= ith order value of the binary response variable
+
+And, n= number of data for smoothing. Here we’ll use n=50.
+
+Now treating this estimated real probability of default as real we plot a scatter plot diagram, with predicted probability from model along the X axis and the estimated real probability along the Y axis.
+Then we fit a linear regression line Y=A+Bx, from the scatter plot.
+Lastly, the model for which A is closest to 0, B is closest to 1 and R² is highest, is considered as the best model to represent the real probability of default.
 
 
 
@@ -876,15 +922,35 @@ auc2[6] = auc(test.ann$target , pred.ann.prob)
 
 
 
+## **_Evaluation of Representation Accuracy of Real Probability of Default For The Six Classifiers_**
 
+As mentioned above, we’ll evaluate the accuracy of predicted probabilities for the models based on the goodness of fit of the linear regression line Y=A+Bx, where Y is the estimated real probability from **Sorting Smoothing Method** and x being predicted probability from the models. The measures used are the following:
+*	Intercept
+*	Slope
+*	Adjusted R squared
 
+```{r}
+#Model evaluation table ##
+Prediction.eval=data.frame(Model=c("Logistic","LDA","KNN","XGBoost","SVM","ANN"),Intercept=c(0.00441,0.06426,0.0302506,0.0041041,-0.012319,0.0033099),
+                      Slope=c(0.9724,0.7706,0.8448061,0.9381054,1.000582,0.9379403),Rsq=c(0.929,0.909,0.9112,0.9341,0.884,0.9401))
+Prediction.eval
+```
+```{r}
+     Model  Intercept     Slope    Rsq
+1 Logistic  0.0044100 0.9724000 0.9290
+2      LDA  0.0642600 0.7706000 0.9090
+3      KNN  0.0302506 0.8448061 0.9112
+4  XGBoost  0.0041041 0.9381054 0.9341
+5      SVM -0.0123190 1.0005820 0.8840
+6      ANN  0.0033099 0.9379403 0.9401
+```
+From the above table it is clear that for the **ANN** classifier the intercept A is closest to zero and R² is highest and slope B is also quite close to 1. Therefore, the **Artificial Neural Network model** represents the real probability of default the best.
 
+## **_Summary of The Project_**
 
+Among the six aforementioned classification techniques, the tree based boosting model i.e **XGBoost** has performed the best in terms of classification task based on error rate, and AUC measure. The differences among the error rates for the methods are not very significant, more or less same; however, the areas under ROC curve are quite distinct and our case AUC is of more significance in terms of accuracy since the target class that is default, has a very small proportion. XGBoost by nature generally performs very well for structured or tabular data and it has done so on our dataset as expected.
 
-
-
-
-
+On the other hand, in terms of prediction accuracy of probability of default, the method produced by **Artificial Neural Networks (ANNs)** outperforms the other five classification techniques in terms of highest R squared value, regression coefficient (closest to 1) and intercept (closest to zero). Therefore, the classification technique derived from ANNs represents the real probability of default better than the other methods such as discriminant analysis, KNN. In general, ANN performs well in the area of pattern recognition and in a sense; this method has done exactly that, distinguishing a kind of pattern among the clients with credit card, default and non-default, by *representing the real probability of default* which is more important in risk analysis than just binary classification.
 
 
 
