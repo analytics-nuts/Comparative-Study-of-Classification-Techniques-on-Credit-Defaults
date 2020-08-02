@@ -566,7 +566,7 @@ which.max(v)
 plot(1:30,v,type="b",xlab="k",ylab="accuracy",main="Elbow plot",font.main=2,col="steelblue3",lwd=4)
 abline(v=19,col="orange")
 ```
-
+![](images/plot_27.jpeg)
 ```{r}
 model.knn=knn3(train.knn[,-88],trainy,k=19)#Best model in terms of accuracy
 
@@ -594,11 +594,298 @@ roc(train.knn$target,predict(model.knn,train.knn[,-88],type="prob")[,2],plot=T,c
 roc(test.knn$target,knn.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
     xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
 ```
-
+![](images/plot_13.jpeg)
 ```{r}
 auc1[3]=0.814
 auc2[3]=0.751
 ```
+
+## **_Extreme Gradient Boost_**
+
+XGBoost is a supervised machine learning algorithm based on decision trees, an en that performs under gradient boosting framework. In boosting, the models are built sequentially by improving upon the errors from previous models. Gradient boosting algorithm on the other hand improve or minimize the error from previous models by employing gradient descent algorithm to give optimized weightage to the previously high performing models. Then comes XGBoost that is  similar to gradient boosting but uses a more regularized model by penalizing complex models using Ridge and Lasso regularization to prevent overfitting. For structured data this algorithm performs really well for its ability of parallel computing and sequential learning.
+
+The wide range of hyper parameters is one of the main reason of flexibility of this model. Some of those parameters that have been used in our training are discussed below:
+*	*objective*: The objective function used . Specify the learning task and the corresponding learning objective.
+*	*booster*: which booster to use, can be gbtree or gblinear.
+*	*eta*: control the learning rate: scale the contribution of each tree by a factor of 0 < eta < 1 when it is added to the current approximation. Used to prevent overfitting by making the boosting process more conservative. Lower value for eta implies larger value for nrounds: low eta value means model more robust to overfitting but slower to compute. 
+*	*nrounds*: max number of boosting iterations.
+*	*eval_metric*: evaluation metrics for validation data.
+*	*max_depth*: maximum depth of a tree.
+*	*colsample_bytree*: subsample ratio of columns when constructing each tree.
+*	*subsample*: subsample ratio of the training instance. Setting it to 0.5 means that xgboost randomly collected half of the data instances to grow trees and this will prevent overfitting.
+*	*min_child_weight*:  minimum sum of instance weight (hessian) needed in a child. If the tree partition step results in a leaf node with the sum of instance weight less than *min_child_weight*, then the building process will give up further partitioning. In linear regression mode, this simply corresponds to minimum number of instances needed to be in each node. The larger, the more conservative the algorithm will be. 
+*	*gamma*: minimum loss reduction required to make a further partition on a leaf node of the tree. the larger, the more conservative the algorithm will be.
+*	*early_stoping_rounds*:  the early stopping function is not triggered. If set to an integer k, training with a validation set will stop if the performance doesn't improve for k rounds.
+*	*label*: vector of response values.
+
+We will tune these parameters using caret package and ```xgb.train()``` to get the optimal values of the parameters that optimizes the chosen metric (accuracy or ROC).
+
+```{r}
+##FItting XGBoost classifier ##
+
+set.seed(666)
+library(parallel) 
+# Calculate the number of cores
+no_cores <- detectCores()-1
+
+library(doParallel)
+# create the cluster for caret to use
+cl <- makePSOCKcluster(no_cores)
+registerDoParallel(cl)
+
+##Preprocessing the data for XGboost
+
+target=as.numeric(recode_factor(target,'no'="0",'yes'="1"))
+target=ifelse(target==1,0,1)#assiging 1 for default and 0 for non-default
+
+data_xgb=cbind(quanti,quali.dummy,target)
+
+#Test train split in 80:20 ratio
+set.seed(666) #For Reproducibility
+
+ind=sample(nrow(data_xgb),nrow(data_xgb)*0.8,replace = F)
+train_xgb=data_xgb[ind,]
+test_xgb=data_xgb[-ind,]
+
+#Using caret package to tune the hyperparameters further
+xgb_control=trainControl(method="cv",number = 3,allowParallel = T,
+                         classProbs = T,summaryFunction = twoClassSummary)
+xgb_grid=expand.grid(nrounds=seq(100,200,by=25),eta=c(0.08,0.09,seq(0.1,0.5,by=0.2)),max_depth=seq(2,6,by=1),gamma=c(0,0.5,1),
+                     subsample=c(0.8,1),colsample_bytree=seq(0.8,1,by=0.1),min_child_weight=seq(1,3,by=1))
+model.xgb=train(x=as.matrix(train_xgb[,-88]),y=recode_factor(as.factor(train_xgb$target),'0'="no",'1'="yes"),
+                method="xgbTree",
+                tuneGrid = xgb_grid
+                ,trControl = xgb_control)
+
+# model.xgb$bestTune
+
+#The final model
+
+set.seed(666)
+xgb_param=trainControl(method="none",classProbs = T,summaryFunction = twoClassSummary,allowParallel = T)
+model.xgb=train(x=as.matrix(train_xgb[,-88]),y=recode_factor(as.factor(train_xgb$target),'0'="no",'1'="yes"),
+                method="xgbTree",verbose=T,
+                tuneGrid = expand.grid(eta=0.08,nrounds=125,
+                                       max_depth=6,colsample_bytree=0.9,gamma=0.5,
+                                       min_child_weight=1,subsample=0.8)
+                ,trControl = xgb_param)
+
+stopCluster(cl)
+registerDoSEQ()
+
+#Prediction for train set
+p_train=predict(model.xgb,newdata = as.matrix(train_xgb[,-88]))
+conf4.train = table(predict=p_train,true=train_xgb$target)
+err1[4] = (conf4.train[1,2]+conf4.train[2,1])/sum(conf4.train)
+
+p_train_prob = predict(model.xgb,newdata = as.matrix(train_xgb[,-88]),type="prob")$yes
+
+#Prediction for test set
+p_test=predict(model.xgb,newdata = as.matrix(test_xgb[,-88]))
+conf4 = table(predict=p_test,true=test_xgb$target)
+err2[4]= (conf4[1,2]+conf4[2,1])/sum(conf4)
+
+xgb.prob=predict(model.xgb,newdata = as.matrix(test_xgb[,-88]),type="prob")$yes
+
+# ROC plot for train and test set
+par(mfrow=c(1,2))
+par(pty="s")
+
+roc(response=as.factor(train_xgb$target),predictor=p_train_prob,percent = T,plot = T,col="#69b3a2",print.auc=T,
+    legacy.axes=T,xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Train Set")
+
+roc(response=as.factor(test_xgb$target),predictor=xgb.prob,percent = T,plot = T,col="navyblue",print.auc=T,
+    legacy.axes=T,xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
+```
+![](images/plot_15.jpeg)
+```{r}
+auc1[4]=0.874
+auc2[4]=0.785
+```
+
+## **_Kernel SVM_**
+
+The Support Vector Machine (SVM) algorithm is a popular machine learning tool that offers solution for both classification and regression problems. Given a set of  training algorithms  builds a model  that assigns new  examples to one or  the other of two  categories , an SVM training  algorithm builds  a model  that  assigns   new examples to one  category  or the  other, making it  a non-probabilistic  binary  linear classifier. SVM model is a presentation of the examples as points in space, mapped so that the examples of the separate catagories are divided by a clear margin that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the margin on which they fall.
+
+In addition to performing linear classification, SVMs can efficiently perform a non-linear classification using what is called the Kernel- trick, implicitly mapping their inputs into high dimensional feature spaces.  SVM  algorithm  use a  set  of  mathematical   function  that are defined as the  kernel . The function of kernel is to take data as input and transform it into the required form. Different SVM algorithms use different types of kernel functions, namely *linear, non-linear, polynomial, radial basis function (RBF), sigmoid*.Introduce Kernel functions for sequence data, graphs, texts, images as well as vectors. The most used type of Kernel function is RBF. Because it has localized and finite response along the entire x-axis.
+
+SVM  Hyperparameter  tuning  using  GridSearch
+
+A  Machine  Learning  model  is defined as  a  mathematical  model  with  a number   of  parameters that need  to be  learned from the data . However, there are some parameters, known as Hyperparameters.  SVM also has some hyperparameters (like what C or gamma (γ) values to use) and  finding optimal  hyperparameter  is a very hard task to  solve . The effectiveness of SVM depends  on the selection of Kernel’s parameter  C . A common choice is a Gaussian Kernel, which has a single  parameter  gamma (γ) . The best combination of C and gamma (γ) is often selected by Grid Search with exponentially growing sequences of C and ( ) . Typically, each combination of parameter choices is checked using cross-validation, and the parameters with best cross- validation accuracy are picked as the best tuned one.
+
+```{r}
+##Fitting Support Vector Machines##
+
+# Data_for_SVM
+data.svm = cbind.data.frame(quanti.norm,quali,target) # SVM accepts factor variables
+data.svm = setDT(data.svm)
+
+# Splitting the data into 80:20 ratio
+set.seed(666)
+ind=sample(nrow(data.svm),nrow(data.svm)*0.8,replace = F)
+train.svm=data.svm[ind,]
+test.svm=data.svm[-ind,]
+
+registerDoParallel(cl)
+
+## Tuning Hyperparameters for SVM
+SVM_Radial_Fit = train(target~.,train.svm, method = "svmRadial",verbose = F,
+                       trControl = trainControl(method = "cv",
+                                                number = 10,allowParallel = T))
+
+stopCluster(cl)
+registerDoSEQ()
+
+#SVM_Radial_Fit$bestTune
+
+# Model Fitting
+set.seed(666)
+model.svm = svm(target ~ .,data=train.svm,cost = 1, gamma = 0.1885286,
+                type="C-classification",kernel="radial",
+                probability = T)
+
+# For test set
+pred.svm = predict(model.svm,newdata = test.svm[,-24],probability = T)
+
+pred.svm.prob = as.data.frame(attr(pred.svm,"prob"))[,2]
+
+conf5 = table(predicted = pred.svm,true = test.svm$target)
+err2[5] = 1 - sum(diag(conf5))/sum(conf5)
+
+# For training set
+pred.svm.train=predict(model.svm,newdata = train.svm[,-24],probability=T)
+conf5.train=table(predicted =predict(model.svm,newdata = train.svm[,-24],probability = T),true = train.svm$target)
+err1[5] = 1 - sum(diag(conf5.train))/sum(conf5.train)
+
+# ROC curve and AUC value
+par(mfrow=c(1,2))
+par(pty="s")
+
+#Train set
+roc(train.svm$target,as.data.frame(attr(predict(model.svm,newdata = train.svm[,-24],probability = T),"prob"))[,2],plot=T,
+    col="#69b3a2",print.auc=T,legacy.axes=TRUE,percent = T,xlab="False Positive percentage",
+    ylab="True Positive percentage",lwd=5,main="Train Set")
+
+#Test set
+roc(test.svm$target,pred.svm.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
+    xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
+```
+
+```{r}
+auc1[5] = 0.885
+auc2[5] = 0.670
+```
+
+## **_ARTIFICIAL NEURAL NETWORK (ANNs)_**
+
+Artificial Neural  Networks   (ANNs)  is  a   computational  model  based  on  the  structure  and  functions  of  biological  neural network . Information   that  flows  through  the  network  affects  the structure of   the  ANN   because  a   neural  network   changes  or  learns  , in a sense -  based on that   input  and  output  .  ANNs    are  considered  non-linear  statistical  data  modeling  tools  where   the   complex  relationships   between  inputs  and  outputs  are modeled  or   pattern  are  found  .
+**COMPONENTS  OF  ANNs**
+
+*Neurons* 
+
+ANNs are  composed  of  artificial  neural  networks  which  are  conceptually  derived  from  biological  neurons. Each  artificial neural  network   has  inputs  and  produce  output  which  can be  sent  to multiple neurons . 
+
+*Connections  and  Weights*
+
+The network  consists  of  connections , each  connection  providing  the  output  of one  neuron as  an input to another  neuron .To  find  the  output  of  the  neuron   , first   we  take the weighted   sum  of  all  the  inputs  ,  weighted  by the weights  of the  connections  from the inputs  to the neurons .  The weighted  sum then  passed  through  a  (usually non-linear) activation function  to produce the output .
+
+*Propagation  Function*
+
+The  propagation function  computes  the  input  to  a neuron from the  outputs  of  itd predecessor  neurons and  their  connections as  a weighted  sum.
+
+*Hyperparameter*
+
+A   hyperparameter   is  a constant   parameter  whose  value  is  a  set   before  the  learning  process  begins .  The  values   of the  parameters  are  derived  via  learning .Examples  of   the hyperparameter  includes  learning  rate , the  number of  hidden  layers and  the batch size  .
+Hyperparameter  Optimization  is  a  big  part  of  deep learning . The reason  is  that   neural  networks  are notoriously   difficult   to  configure   and there  are a lot  of  parameters  that we need to  set .  on the  top  of  that  , individual  models  can  be very slow  to train. That is why  we use  the grid search  capability  to  tune  the  hyperparameters for the model 
+
+```{r}
+## Artifical Neural Network Classifier ##
+
+data.ann =cbind(quanti.norm, quali.dummy, target)
+setDF(data.ann) #Converting into data.table
+
+#Test train split in 80:20 ratio
+set.seed(666) #For Reproducibility
+
+ind=sample(nrow(data.ann),nrow(data.ann)*0.8,replace = F)
+train.ann=data.ann[ind,]
+test.ann=data.ann[-ind,]
+
+registerDoParallel(cl)
+
+## Tuning Hyperparameters for ANN
+set.seed(666)
+param = trainControl(method = "cv",number = 5 , allowParallel = T,classProbs = T,summaryFunction = twoClassSummary,search = "grid")
+ann.fit = train(recode_factor( target,'0'="no",'1'="yes")~., train.ann,
+                method = "nnet",
+                trControl = param,
+                metric = "ROC",
+                trace = FALSE,
+                maxit = 200)
+
+# Stop parallel Computation
+stopCluster(cl)
+registerDoSEQ()
+
+#getModelInfo()$nnet
+
+ann.fit$bestTune
+
+[1] size decay
+    3   0.1
+    
+plot(ann.fit)
+```
+
+```{r}
+## Model Fitting based on the Grid Search
+set.seed(666)
+model.ann = nnet(target~., data = train.ann, size =3, decay = 0.1,maxit=200)
+
+## For Test Set
+pred.ann.prob = predict(model.ann, newdata= test.ann[,-88])
+pred.ann = ifelse(pred.ann.prob > 0.5, "1", "0" )
+conf6 = table(predict= pred.ann , true = test.ann$target)
+err2[6] = (conf6[1,2]+conf6[2,1])/sum(conf6)
+
+
+#For Training Set
+
+pred.ann.train.prob = predict(model.ann , newdata = train.ann[,-88])
+pred.ann.train = ifelse(pred.ann.train.prob > 0.5, "1", "0" )
+conf6.train = table(predicted = pred.ann.train, true = train.ann$target)
+err1[6] = 1-sum(diag(conf6.train))/sum(conf6.train)
+
+#ROC curve and AUC value
+par(mfrow=c(1,2))
+par(pty="s")
+
+roc(train.ann$target , pred.ann.train.prob , plot = T,col = "#69b3a2", print.auc = T, legacy.axes = TRUE , percent = T,
+    xlab = "False Positive percentage", ylab = "True Positive percentage",lwd = 5, main = "Train Set")
+
+roc(test.ann$target , pred.ann.prob , plot = T,col = "navyblue", print.auc = T, legacy.axes = TRUE , percent = T,
+    xlab = "False Positive percentage", ylab = "True Positive percentage",lwd = 5, main = "Test Set")
+    
+auc1[6] = auc(train.ann$target , pred.ann.train.prob)
+auc2[6] = auc(test.ann$target , pred.ann.prob)      
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
