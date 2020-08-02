@@ -157,7 +157,7 @@ The column ‘id’ has no role to play in our analysis. Hence, it is omitted.
 credit=credit[,-1]#There's no use of the column id in our analysis
  ```  
  
-Let’s inspect for missing values and converting the variables SEX, EDUCATION, MARRIAGE, and default.payment.next.month.
+Let’s inspect for missing values and converting the variables SEX, EDUCATION, MARRIAGE, and default.payment.next.month in factor variables
 
 ```{r}
 ##Looking for missing value
@@ -166,19 +166,17 @@ sum(is.na(credit))#it is observed that there's no missing values
 ##Changing the name of the variable PAY_0 to PAY_1 and default payment to target
 names(credit)
 names(credit)[6]="PAY_1"
-names(credit)[24] = "target"
 
-##Transforming the variables SEX,MARRIAGE,EDUCATION and default payment into factors
+##Transforming the variables SEX,MARRIAGE,EDUCATION and default payment variables into factors
+
 df=as.data.frame(credit)
-df[c("SEX","MARRIAGE","EDUCATION","target","PAY_1","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")]= 
-  lapply(df[c("SEX","MARRIAGE","EDUCATION","target","PAY_1","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")]
+df[c("SEX","MARRIAGE","EDUCATION","default payment next month")]=lapply(df[c("SEX","MARRIAGE","EDUCATION","default payment next month")]
                                                                         ,function(x) as.factor(x))
 
-
-str(df)
 credit=df
 rm(df)
-```  
+```
+
 The overall summary of the variables, quantitative as well as qualitative.
 
 
@@ -188,41 +186,47 @@ summary(credit)
 ```
  
  ```{r}
- LIMIT_BAL       SEX       EDUCATION MARRIAGE       AGE            PAY_1           PAY_2      
- Min.   :  10000   1:11888   0:   14   0:   54   Min.   :21.00   0      :14737   0      :15730  
- 1st Qu.:  50000   2:18112   1:10585   1:13659   1st Qu.:28.00   -1     : 5686   -1     : 6050  
- Median : 140000             2:14030   2:15964   Median :34.00   1      : 3688   2      : 3927  
- Mean   : 167484             3: 4917   3:  323   Mean   :35.49   -2     : 2759   -2     : 3782  
- 3rd Qu.: 240000             4:  123             3rd Qu.:41.00   2      : 2667   3      :  326  
- Max.   :1000000             5:  280             Max.   :79.00   3      :  322   4      :   99  
-                             6:   51                             (Other):  141   (Other):   86  
-     PAY_3           PAY_4           PAY_5           PAY_6         BILL_AMT1         BILL_AMT2     
- 0      :15764   0      :16455   0      :16947   0      :16286   Min.   :-165580   Min.   :-69777  
- -1     : 5938   -1     : 5687   -1     : 5539   -1     : 5740   1st Qu.:   3559   1st Qu.:  2985  
- -2     : 4085   -2     : 4348   -2     : 4546   -2     : 4895   Median :  22382   Median : 21200  
- 2      : 3819   2      : 3159   2      : 2626   2      : 2766   Mean   :  51223   Mean   : 49179  
- 3      :  240   3      :  180   3      :  178   3      :  184   3rd Qu.:  67091   3rd Qu.: 64006  
- 4      :   76   4      :   69   4      :   84   4      :   49   Max.   : 964511   Max.   :983931  
- (Other):   78   (Other):  102   (Other):   80   (Other):   80                                     
-   BILL_AMT3         BILL_AMT4         BILL_AMT5        BILL_AMT6          PAY_AMT1         PAY_AMT2      
- Min.   :-157264   Min.   :-170000   Min.   :-81334   Min.   :-339603   Min.   :     0   Min.   :      0  
- 1st Qu.:   2666   1st Qu.:   2327   1st Qu.:  1763   1st Qu.:   1256   1st Qu.:  1000   1st Qu.:    833  
- Median :  20089   Median :  19052   Median : 18105   Median :  17071   Median :  2100   Median :   2009  
- Mean   :  47013   Mean   :  43263   Mean   : 40311   Mean   :  38872   Mean   :  5664   Mean   :   5921  
- 3rd Qu.:  60165   3rd Qu.:  54506   3rd Qu.: 50191   3rd Qu.:  49198   3rd Qu.:  5006   3rd Qu.:   5000  
- Max.   :1664089   Max.   : 891586   Max.   :927171   Max.   : 961664   Max.   :873552   Max.   :1684259  
-                                                                                                          
-    PAY_AMT3         PAY_AMT4         PAY_AMT5           PAY_AMT6        target   
- Min.   :     0   Min.   :     0   Min.   :     0.0   Min.   :     0.0   0:23364  
- 1st Qu.:   390   1st Qu.:   296   1st Qu.:   252.5   1st Qu.:   117.8   1: 6636  
- Median :  1800   Median :  1500   Median :  1500.0   Median :  1500.0            
- Mean   :  5226   Mean   :  4826   Mean   :  4799.4   Mean   :  5215.5            
- 3rd Qu.:  4505   3rd Qu.:  4013   3rd Qu.:  4031.5   3rd Qu.:  4000.0            
- Max.   :896040   Max.   :621000   Max.   :426529.0   Max.   :528666.0            
+   LIMIT_BAL       SEX       EDUCATION MARRIAGE       AGE            PAY_1             PAY_2             PAY_3             PAY_4        
+ Min.   :  10000   1:11888   0:  468   3:  377   Min.   :21.00   Min.   :-2.0000   Min.   :-2.0000   Min.   :-2.0000   Min.   :-2.0000  
+ 1st Qu.:  50000   2:18112   1:10585   1:13659   1st Qu.:28.00   1st Qu.:-1.0000   1st Qu.:-1.0000   1st Qu.:-1.0000   1st Qu.:-1.0000  
+ Median : 140000             2:14030   2:15964   Median :34.00   Median : 0.0000   Median : 0.0000   Median : 0.0000   Median : 0.0000  
+ Mean   : 167484             3: 4917             Mean   :35.49   Mean   :-0.0167   Mean   :-0.1338   Mean   :-0.1662   Mean   :-0.2207  
+ 3rd Qu.: 240000                                 3rd Qu.:41.00   3rd Qu.: 0.0000   3rd Qu.: 0.0000   3rd Qu.: 0.0000   3rd Qu.: 0.0000  
+ Max.   :1000000                                 Max.   :79.00   Max.   : 8.0000   Max.   : 8.0000   Max.   : 8.0000   Max.   : 8.0000  
+     PAY_5             PAY_6           BILL_AMT1         BILL_AMT2        BILL_AMT3         BILL_AMT4         BILL_AMT5     
+ Min.   :-2.0000   Min.   :-2.0000   Min.   :-165580   Min.   :-69777   Min.   :-157264   Min.   :-170000   Min.   :-81334  
+ 1st Qu.:-1.0000   1st Qu.:-1.0000   1st Qu.:   3559   1st Qu.:  2985   1st Qu.:   2666   1st Qu.:   2327   1st Qu.:  1763  
+ Median : 0.0000   Median : 0.0000   Median :  22382   Median : 21200   Median :  20089   Median :  19052   Median : 18105  
+ Mean   :-0.2662   Mean   :-0.2911   Mean   :  51223   Mean   : 49179   Mean   :  47013   Mean   :  43263   Mean   : 40311  
+ 3rd Qu.: 0.0000   3rd Qu.: 0.0000   3rd Qu.:  67091   3rd Qu.: 64006   3rd Qu.:  60165   3rd Qu.:  54506   3rd Qu.: 50191  
+ Max.   : 8.0000   Max.   : 8.0000   Max.   : 964511   Max.   :983931   Max.   :1664089   Max.   : 891586   Max.   :927171  
+   BILL_AMT6          PAY_AMT1         PAY_AMT2          PAY_AMT3         PAY_AMT4         PAY_AMT5           PAY_AMT6       
+ Min.   :-339603   Min.   :     0   Min.   :      0   Min.   :     0   Min.   :     0   Min.   :     0.0   Min.   :     0.0  
+ 1st Qu.:   1256   1st Qu.:  1000   1st Qu.:    833   1st Qu.:   390   1st Qu.:   296   1st Qu.:   252.5   1st Qu.:   117.8  
+ Median :  17071   Median :  2100   Median :   2009   Median :  1800   Median :  1500   Median :  1500.0   Median :  1500.0  
+ Mean   :  38872   Mean   :  5664   Mean   :   5921   Mean   :  5226   Mean   :  4826   Mean   :  4799.4   Mean   :  5215.5  
+ 3rd Qu.:  49198   3rd Qu.:  5006   3rd Qu.:   5000   3rd Qu.:  4505   3rd Qu.:  4013   3rd Qu.:  4031.5   3rd Qu.:  4000.0  
+ Max.   : 961664   Max.   :873552   Max.   :1684259   Max.   :896040   Max.   :621000   Max.   :426529.0   Max.   :528666.0  
+ default payment next month
+ 0:23364                   
+ 1: 6636           
  ```  
  
- 
- 
+#### **_Bivariate analysis_**
+
+Now we’ll scrutinize the correlations between the quantitative variables and will check if there are high correlation between some of the features. We employ correlation step plot.
+
+```R
+##Correlation analysis and Correlogram plot
+
+df=credit[,c(-2:-4,-24)] #Considering only quantitative variables
+#cor(credit[,c(-2:-4,-24)])
+#ggpairs(df,aes(color=credit$`default payment next month`),title = "Correlogram")
+ggcorr(df,method=c("everything", "pearson"))+ggtitle("Correlation Steps")
+```
+
+
+
  
  
  
