@@ -212,7 +212,7 @@ summary(credit)
  1: 6636           
  ```  
  
-#### **_Bivariate analysis_**
+## **_Bivariate analysis_**
 
 Now we’ll scrutinize the correlations between the quantitative variables and will check if there are high correlation between some of the features. We employ correlation step plot.
 
@@ -223,14 +223,14 @@ df=credit[,c(-2:-4,-24)] #Considering only quantitative variables
 #cor(credit[,c(-2:-4,-24)])
 #ggpairs(df,aes(color=credit$`default payment next month`),title = "Correlogram")
 ggcorr(df,method=c("everything", "pearson"))+ggtitle("Correlation Steps")
-
+rm(df)
 ```
 
 ![](images/plot_2.jpeg)
 
 It can be observed that the correlation among the bill amounts for 6 months are on the higher side. All other features have low or moderate correlation among them. 
  
-#### **_Visualizations_**
+## **_Visualizations_**
 
 We’ll now dive into the visualizations of the dataset in hand. Several  plots like density plot for credit amount , histogram of age, several bar-plots for marital status and gender also dot-plots for credit amount versus payment statuses( PAY_1 ,..,PAY_6) and bill amounts (BILL_AMT1 ,….,BILL_AMT6).
 
@@ -300,19 +300,172 @@ plot_grid(q[[6]],q[[7]],q[[8]],q[[9]],q[[10]],q[[11]],nrow=3,ncol=2)
  
 ![](images/plot_6.jpeg) 
  
+![](images/plot_7.jpeg)
+
+![](images/plot_8.jpeg)
  
+ ## **_Observations_**
  
+ The density of credit amount is high in the range 0 to 250000 for the clients with default of payment. Therefore, clients with relatively lower credit are more likely to be default. Similarly, from the histogram of age it is clear that most of the default clients are in the age bracket 20 to 40.
  
+The proportions of females are greater than that of males for default and non- default clients. In case of defaults the no of married clients and single clients are almost same but in case of non-default clients, unmarried clients comprehensively outnumber the married ones.
+
+The dot-plots of credit amount versus repayment statuses indicates that those who are allowed high amount of credit are able to clear their bills duly and clients with low credit amounts are the majority in defaults, which is expected. There is a kind of barrier at 500000 for credit amount and most of the clients are have allowed credit within the range 0 to 500000.
+
+Clients with positive repayment statuses are majority of defaults which is also a very obvious fact.
+
+## **_Feature engineering_**
+
+There are some undocumented labels in the factor variables like EDUCATION and MARRIAGE. For example, the labels 4, 5 and 6 of EDUCATION are not documented clearly in the description of the dataset, so we merge these labels with the label 0 that implies qualification other than high school, graduate and university.
+
+Similarly, we merge the labels 0 and 3 for MARRIAGE factor.As 3 implies divorce and 0 is other.
+These changes are appearing reasonable to me due to the updates in the definition of the variables in the discussion zone for this dataset in [Kaggle by ezboral](https://www.kaggle.com/uciml/default-of-credit-card-clients-dataset/discussion/34608).
+
+ ```Rscript
+ ## Feature Engineering
+
+##Redefining the variables EDUCATIOn,Marriage according to the revised description of the dataset.
+credit$EDUCATION = recode_factor(credit$EDUCATION, '4' = "0", '5' = "0", '6' = "0",.default = levels(credit$EDUCATION))
+#table(credit$EDUCATION)
+
+credit$MARRIAGE = recode_factor(credit$MARRIAGE, '0'="3",.default = levels(credit$MARRIAGE))
+#table(credit$MARRIAGE)
+```
+
+Of course there are scopes to go deeper into engineering more features like variable transformations, important variables selection etc. However, these are good when working with one or two models based on their criteria for good fit, but in study of a good no of models too much upgradation in features may lead to misleading results. Therefore, we won’t indulge in any further engineering.
  
+## **_Data pre-processing_**
+
+First converting the repayment statuses PAY_1 to PAY_6 into factor variables and storing the ‘default.payment.next.month’ in a factor object, named ‘target’.
+
+```Rscript
+df=as.data.frame(credit)
+df[c("PAY_1","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")]= lapply(df[c("PAY_1","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")]
+                                                                        ,function(x) as.factor(x))
+
+credit=df
+rm(df)
+target=credit$`default payment next month`
+(table(target)/length(target))
+```
  
+```R
+target
+     0      1 
+0.7788 0.2212
+``` 
+
+We divide the whole data into two parts, quantitative and qualitative for future reference and one hot encoding (dummy encoding). 
+
+```Rscript
+##Partitioning the whole data in quantitative and qualitative parts and defining the target
+quanti=credit[,c(-2:-4,-6:-11,-24)]
+quali=credit[,c(2:4,6:11)]
+```
  
+Then combine all the features quantitative and qualitative into one single data-frame.
+
+```Rscript
+all.features=cbind(quanti,quali,target)
+head(all.features)
+```
+
+```Rscript
+   LIMIT_BAL AGE BILL_AMT1 BILL_AMT2 BILL_AMT3 BILL_AMT4 BILL_AMT5 BILL_AMT6 PAY_AMT1 PAY_AMT2 PAY_AMT3 PAY_AMT4
+1:     20000  24      3913      3102       689         0         0         0        0      689        0        0
+2:    120000  26      2682      1725      2682      3272      3455      3261        0     1000     1000     1000
+3:     90000  34     29239     14027     13559     14331     14948     15549     1518     1500     1000     1000
+4:     50000  37     46990     48233     49291     28314     28959     29547     2000     2019     1200     1100
+5:     50000  57      8617      5670     35835     20940     19146     19131     2000    36681    10000     9000
+6:     50000  37     64400     57069     57608     19394     19619     20024     2500     1815      657     1000
+   PAY_AMT5 PAY_AMT6 SEX EDUCATION MARRIAGE PAY_1 PAY_2 PAY_3 PAY_4 PAY_5 PAY_6 target
+1:        0        0   2         2        1     2     2    -1    -1    -2    -2      1
+2:        0     2000   2         2        2    -1     2     0     0     0     2      1
+3:     1000     5000   2         2        2     0     0     0     0     0     0      0
+4:     1069     1000   2         2        1     0     0     0     0     0     0      0
+5:      689      679   1         2        1    -1     0    -1     0     0     0      0
+6:     1000      800   1         1        2     0     0     0     0     0     0      0
+```
+We will define a few empty numeric variables, which will be used for comparison of the models.
  
+```Rscript
+err1=numeric()
+err2=numeric() #Creating empty vectors for further comparisons
+auc1=numeric()
+auc2=numeric()
+```
  
- 
- 
- 
- 
- 
- 
- 
- 
+## **_Test-train split of the data_**
+
+We split the combined data-frame(or data-table) into two parts. One is training set, consists of 80% of the data, on which the model(s) will be trained and the other one is test set, consists of remaining 20% of the data, on which the model(s) will be validated.
+
+```R
+#Splitting the into test and train sets in 80:20 ratio
+
+set.seed(666)#for reproducability of result
+ind=sample(nrow(all.features),24000,replace = F)
+
+train.logit=all.features[ind,]
+test.logit=all.features[-ind,]
+```
+
+## **_Model fitting_**
+
+For each of the six models we’ll perform the task according to the following template:
+* Training the model on the training set(tuning the hyper-parameters if needed)
+*	Making prediction on both train and test set
+*	Calculate error rate for both the sets and store them in two vector
+*	Plotting ROC curve for both the sets and store the area under curve(AUC) in two vectors
+*	Lastly plot a cumulative gain chart for test set. 
+
+## **_Logistic Regression_**
+
+Logistic regression is a binary classification algorithm used to model the probability of an individual belonging to a class. Generally a binary response variable with two category (in our case default payment) denoted by ‘0’ and ‘1’ is regressed by logistic regression. In logistic model, the log of odds of the binary response to be ‘1’ is predicted by a linear regression equation that can include continuous as well as factor variables. However, the factor variables are needed to be encoded as one indicator variable for each label. The corresponding predicted probability of the value labeled as ‘1’ is converted to the class ‘1’ or ‘0’ by using threshold value.
+
+```Rscript
+##Fitting a logistic model
+
+model.logit=glm(target~.,data=train.logit,family="binomial")
+
+summary(model.logit)
+
+#For test set
+pred.logit=predict(model.logit,type="response",newdata = test.logit)
+
+pred.def=ifelse(pred.logit>0.5,"1","0")
+
+conf1=table(predict=pred.def,true=test.logit$target)
+err2[1]= 1 - sum(diag(conf1))/sum(conf1)
+
+#For training set
+pred.def=ifelse(predict(model.logit,type="response",newdata = train.logit)>0.5,"1","0")
+
+conf1.train=table(predict=pred.def,true=train.logit$target)
+err1[1]= 1 - sum(diag(conf1.train))/sum(conf1.train)
+
+##Ploting ROC curve and AUC for test and train set
+
+par(mfrow=c(1,2))
+par(pty="s")
+
+#For training set
+roc(train.logit$target,model.logit$fitted.values,plot=T,col="#69b3a2",print.auc=T,legacy.axes=TRUE,percent = T,
+    xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Train Set")
+
+#For test set
+roc(test.logit$target,pred.logit,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
+    xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
