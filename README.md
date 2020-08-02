@@ -223,9 +223,10 @@ df=credit[,c(-2:-4,-24)] #Considering only quantitative variables
 #cor(credit[,c(-2:-4,-24)])
 #ggpairs(df,aes(color=credit$`default payment next month`),title = "Correlogram")
 ggcorr(df,method=c("everything", "pearson"))+ggtitle("Correlation Steps")
+
 ```
 
-![](images/plot_2.jpg)
+![plot 1](images/plot_2)
 
  
  
