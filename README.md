@@ -620,6 +620,8 @@ The wide range of hyper parameters is one of the main reason of flexibility of t
 
 We will tune these parameters using caret package and ```train()``` function by enabling *parallel computing* to get the optimal values of the parameters that optimizes the chosen metric (accuracy or ROC).
 
+![](images/finclassifier.png)
+
 ```{r}
 ##FItting XGBoost classifier ##
 
@@ -796,7 +798,9 @@ The  propagation function  computes  the  input  to  a neuron from the  outputs 
 *Hyperparameter*
 
 A   hyperparameter   is  a constant   parameter  whose  value  is  a  set   before  the  learning  process  begins .  The  values   of the  parameters  are  derived  via  learning .Examples  of   the hyperparameter  includes  learning  rate , the  number of  hidden  layers and  the batch size  .
-Hyperparameter  Optimization  is  a  big  part  of  deep learning . The reason  is  that   neural  networks  are notoriously   difficult   to  configure   and there  are a lot  of  parameters  that we need to  set .  on the  top  of  that  , individual  models  can  be very slow  to train. That is why  we use  the grid search  capability  to  tune  the  hyperparameters for the model 
+Hyperparameter  Optimization  is  a  big  part  of  deep learning . The reason  is  that   neural  networks  are notoriously   difficult   to  configure   and there  are a lot  of  parameters  that we need to  set .  on the  top  of  that  , individual  models  can  be very slow  to train. That is why  we use  the grid search  capability  to  tune  the  hyperparameters for the model.
+
+![](images/ANN.png)
 
 ```{r}
 ## Artifical Neural Network Classifier ##
