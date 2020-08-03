@@ -902,7 +902,7 @@ From the above table, it can be observed that the model *XGBoost* has minimum er
 Earlier we have compared the six models based on the measures like error rate and AUC. And observed that XGBoost has performed better than the other five models in terms of least error rate and maximum AUC. However, in risk management study the confidence of a model on an individual sample to belong to the class predicted by the model is of far more significance rather than just binary classification results like, ‘default’ or ‘non-default’. By the term ‘confidence’, we mean the accuracy of predicted probability of default.
 
 Since the real probability of default is unknown, the ‘Sorting Smoothing Method’, SSM is employed here to estimate the real probability of default.
-Firstly, according to the predictive probability from a model sort the validation or test set in ascending order. Then SSM is used to estimate real probability as follows:
+Firstly, according to the predictive probability from a model we sort the validation or test set in ascending order. Then SSM is used to estimate real probability as follows:
 
 Pi=(Yi-n+……+Yi-1+Yi+Yi+1+…..+Yi+n )/(2*n+1)
 
@@ -917,10 +917,14 @@ Then we fit a linear regression line Y=A+Bx, from the scatter plot.
 Lastly, the model for which A is closest to 0, B is closest to 1 and R² is highest, is considered as the best model to represent the real probability of default.
 
 
+The scatter plots of real probability of default(estimated from *Sorting Smoothing Method*)(Y) versus the predicted probability from the model (x) along with the fitted linear regression line for each of the six classifiers are as follow: 
 
-
-
-
+![](images/plot_21.jpeg)
+![](images/plot_22.jpeg)
+![](images/plot_23.jpeg)
+![](images/plot_24.jpeg)
+![](images/plot_25.jpeg)
+![](images/plot_26.jpeg)
 
 ## **_Evaluation of Representation Accuracy of Real Probability of Default For The Six Classifiers_**
 
