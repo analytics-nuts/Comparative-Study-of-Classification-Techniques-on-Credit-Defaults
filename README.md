@@ -431,7 +431,7 @@ For each of the six models we’ll perform the task according to the following t
 
 Logistic regression is a binary classification algorithm used to model the probability of an individual belonging to a class. Generally a binary response variable with two category (in our case default payment) denoted by ‘0’ and ‘1’ is regressed by logistic regression. In logistic model, the log of odds of the binary response to be ‘1’ is predicted by a linear regression equation that can include continuous as well as factor variables. However, the factor variables are needed to be encoded as one indicator variable for each label. The corresponding predicted probability of the value labeled as ‘1’ is converted to the class ‘1’ or ‘0’ by using threshold value.
 
-Fitting a logistic model
+**Fitting a logistic model**
 ```{r}
 model.logit=glm(target~.,data=train.logit,family="binomial")
 
@@ -484,30 +484,29 @@ auc2[1]=0.769
 Linear discriminant analysis is a generalized version of Fisher’s discriminant rule. This method is also used in machine learning for classification problem. This model specifies that for each given class of response variable the posterior probability of a sample given the class follows multivariate normal distribution with common variance-covariance matrix. LDA also use linear combination of features for discriminating the different categories of the response variable and its objective is to maximize the distance between different categories and minimizing the distance within each category.
  Besides the formula and training data, one more parameter prior is passed to the function lda(). *prior* is a vector specifying the prior probabilities of class membership. We will use the proportion of the classes in our dataset as our input.
 
-```{r}
-##Fitting a Linear discriminent model ##
 
+**Fitting a Linear discriminent model**
+```{r}
 model.lda=lda(target~.,data=train.logit,prior=c(0.7788,0.2212))
 model.lda
-
-#For test set
+```
+Making prediction for both test set and test set 
+```{r}
 pred.lda=predict(model.lda,test.logit)
-
 data.frame(pred.lda$posterior)
 pred.lda.prob=pred.lda$posterior[,2]
-
-conf2=table(predict=pred.lda$class,true=test.logit$target)
-err2[2]= 1 - sum(diag(conf2))/sum(conf2)
-
-#For train set
 pred.lda.train=predict(model.lda,train.logit)
 data.frame(pred.lda.train$posterior)
-
+```  
+Calculate the error rate for  both test and train set
+```{r} 
+conf2=table(predict=pred.lda$class,true=test.logit$target)
+err2[2]= 1 - sum(diag(conf2))/sum(conf2)
 conf2.train=table(predict=pred.lda.train$class,true=train.logit$target)
 err1[2]= 1 - sum(diag(conf2.train))/sum(conf2.train)
-
-##Ploting ROC curve and AUC for test and train set
-
+```  
+Ploting ROC curve and AUC for test and train set  
+```{r}
 par(mfrow=c(1,2))
 par(pty="s")
 
@@ -530,12 +529,12 @@ K-nearest neighbor is a non-parametric algorithm that can be used in classificat
 The parameter *k* in the classifier is an integer, defines the no of member in the neighborhood to be considered. Here *k=1* implies the sample is assigned to the class of the single neighbor.
 We will use a for-loop to check for a range of values of k for which the model produces highest accuracy.
 
+
+**FItting K Nearest Neighbor classifier**
+
+Preprocessing the data
+# min-max normalization of quantitative features  
 ```{r}
-##FItting K Nearest Neighbor classifier ##
-
-#Preprocessing the data
-
-# min-max normalization of quantitative features
 f=function(x)
 {
  return((x-min(x))/(max(x)-min(x)))
@@ -548,18 +547,21 @@ setDF(quanti.norm)#Converting into data.frame
 for(i in 1:14){
 quanti.norm[,i]=f(quanti.norm[,i]) #Normalization
 }
-
-#Dummy encoding for factor variables
+```  
+Dummy encoding for factor variables  
+```{r}  
 quali.dummy=dummy.data.frame(quali)
-
-#Merging the normalized data and encoded dummies
+```
+Merging the normalized data and encoded dummies   
+```{r}
 target=recode_factor(target,'0'="no",'1'="yes")
 
 data.knn=cbind(quanti.norm,quali.dummy,target)
 
 setDT(data.knn)#Converting into data.table
-
-#Test train split in 80:20 ratio
+```
+Split the Test & train set in 80:20 ratio  
+```{r}
 set.seed(666) #For Reproducibility
 
 ind=sample(nrow(data.knn),nrow(data.knn)*0.8,replace = F)
@@ -567,10 +569,8 @@ train.knn=data.knn[ind,]
 test.knn=data.knn[-ind,]
 
 trainy=train.knn$target
-
 model.list=list()#empty list
 v=numeric()
-
 set.seed(222)
 for(i in 1:30){
   
@@ -586,27 +586,28 @@ abline(v=19,col="orange")
 ![](images/plot_27.jpeg)
 ```{r}
 model.knn=knn3(train.knn[,-88],trainy,k=19)#Best model in terms of accuracy
-
-#Prediction
-#Test set
+```  
+Prediction and calculating error rate on test set
+```{r}  
 set.seed(666)
 conf3=table(prediction=predict(model.knn,test.knn[,-88],type = "class"),truth=test.knn$target)
 err2[3]=1 - sum(diag(conf3))/sum(conf3)
 
 knn.prob=predict(model.knn,test.knn[,-88],type="prob")[,2] #Probalities of "yes"
-
-#Training set
+```
+Prediction and calculating error rate on Training set 
+```{r}
 set.seed(666)
 conf3.train=table(prediction=predict(model.knn,train.knn[,-88],type = "class"),truth=train.knn$target)
 err1[3]=1 - sum(diag(conf3.train))/sum(conf3.train)
-
-##Ploting ROC curve and AUC for test and train set
+```
+Ploting ROC curve and AUC for test and train set  
+```{r}
 par(mfrow=c(1,2))
 par(pty="s")
 
 roc(train.knn$target,predict(model.knn,train.knn[,-88],type="prob")[,2],plot=T,col="#69b3a2",print.auc=T,legacy.axes=TRUE,
     percent = T,xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Train Set")
-
 
 roc(test.knn$target,knn.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
     xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
@@ -639,34 +640,40 @@ We will tune these parameters using caret package and ```train()``` function by 
 
 ![](images/finclassifier.png)
 
+
+FItting XGBoost classifier 
 ```{r}
-##FItting XGBoost classifier ##
-
 set.seed(666)
-library(parallel) 
-# Calculate the number of cores
+library(parallel)  
+```
+Calculate the number of cores  
+```{r}
 no_cores <- detectCores()-1
-
+```
+create the cluster for caret to use  
+```{r}
 library(doParallel)
-# create the cluster for caret to use
+
 cl <- makePSOCKcluster(no_cores)
 registerDoParallel(cl)
-
-##Preprocessing the data for XGboost
-
+```
+Preprocessing the data for XGboost
+```{r}
 target=as.numeric(recode_factor(target,'no'="0",'yes'="1"))
 target=ifelse(target==1,0,1)#assiging 1 for default and 0 for non-default
 
 data_xgb=cbind(quanti,quali.dummy,target)
-
-#Test train split in 80:20 ratio
+```
+Spliting the Test & train in 80:20 ratio  
+```{r}
 set.seed(666) #For Reproducibility
 
 ind=sample(nrow(data_xgb),nrow(data_xgb)*0.8,replace = F)
 train_xgb=data_xgb[ind,]
 test_xgb=data_xgb[-ind,]
-
-#Using caret package to tune the hyperparameters further
+```
+Using caret package to tune the hyperparameters further   
+```{r}
 xgb_control=trainControl(method="cv",number = 3,allowParallel = T,
                          classProbs = T,summaryFunction = twoClassSummary)
 xgb_grid=expand.grid(nrounds=seq(100,200,by=25),eta=c(0.08,0.09,seq(0.1,0.5,by=0.2)),max_depth=seq(2,6,by=1),gamma=c(0,0.5,1),
@@ -677,9 +684,9 @@ model.xgb=train(x=as.matrix(train_xgb[,-88]),y=recode_factor(as.factor(train_xgb
                 ,trControl = xgb_control)
 
 # model.xgb$bestTune
-
-#The final model
-
+```
+The final model
+```{r}
 set.seed(666)
 xgb_param=trainControl(method="none",classProbs = T,summaryFunction = twoClassSummary,allowParallel = T)
 model.xgb=train(x=as.matrix(train_xgb[,-88]),y=recode_factor(as.factor(train_xgb$target),'0'="no",'1'="yes"),
@@ -691,22 +698,25 @@ model.xgb=train(x=as.matrix(train_xgb[,-88]),y=recode_factor(as.factor(train_xgb
 
 stopCluster(cl)
 registerDoSEQ()
-
-#Prediction for train set
+```
+Prediction and calculating  error rate for train set  
+```{r}
 p_train=predict(model.xgb,newdata = as.matrix(train_xgb[,-88]))
 conf4.train = table(predict=p_train,true=train_xgb$target)
 err1[4] = (conf4.train[1,2]+conf4.train[2,1])/sum(conf4.train)
 
 p_train_prob = predict(model.xgb,newdata = as.matrix(train_xgb[,-88]),type="prob")$yes
-
-#Prediction for test set
+```
+Prediction and calculating  error rate for test set  
+```{r}
 p_test=predict(model.xgb,newdata = as.matrix(test_xgb[,-88]))
 conf4 = table(predict=p_test,true=test_xgb$target)
 err2[4]= (conf4[1,2]+conf4[2,1])/sum(conf4)
 
 xgb.prob=predict(model.xgb,newdata = as.matrix(test_xgb[,-88]),type="prob")$yes
-
-# ROC plot for train and test set
+```
+ROC plot for train and test set  
+```{r}
 par(mfrow=c(1,2))
 par(pty="s")
 
@@ -733,60 +743,62 @@ SVM  Hyperparameter tuning  using  GridSearch
 A  Machine  Learning  model  is defined as  a  mathematical  model  with  a number   of  parameters that need  to be  learned from the data . However, there are some parameters, known as Hyperparameters.  SVM also has some hyperparameters (like what C or gamma (γ) values to use) and  finding optimal  hyperparameter  is a very hard task to  solve . The effectiveness of SVM depends  on the selection of Kernel’s parameter  C . A common choice is a Gaussian Kernel, which has a single  parameter  gamma (γ) . The best combination of C and gamma (γ) is often selected by Grid Search with exponentially growing sequences of C and ( ) . Typically, each combination of parameter choices is checked using cross-validation, and the parameters with best cross- validation accuracy are picked as the best tuned one.
 
 ![](images/SVM.png)
-```{r}
-##Fitting Support Vector Machines##
 
-# Data_for_SVM
+**Fitting Support Vector Machines**
+ Data_for_SVM  
+```{r}
 data.svm = cbind.data.frame(quanti.norm,quali,target) # SVM accepts factor variables
 data.svm = setDT(data.svm)
+```
+Splitting the data into 80:20 ratio  
+```{r}  
 
-# Splitting the data into 80:20 ratio
 set.seed(666)
 ind=sample(nrow(data.svm),nrow(data.svm)*0.8,replace = F)
 train.svm=data.svm[ind,]
 test.svm=data.svm[-ind,]
-
 registerDoParallel(cl)
-
-## Tuning Hyperparameters for SVM
+```
+Tuning Hyperparameters for SVM  
+```{r}
 SVM_Radial_Fit = train(target~.,train.svm, method = "svmRadial",verbose = F,
                        trControl = trainControl(method = "cv",
                                                 number = 10,allowParallel = T))
 
 stopCluster(cl)
 registerDoSEQ()
-
 #SVM_Radial_Fit$bestTune
+```
+Model Fitting   
+```{r}  
 
-# Model Fitting
 set.seed(666)
 model.svm = svm(target ~ .,data=train.svm,cost = 1, gamma = 0.1885286,
                 type="C-classification",kernel="radial",
-                probability = T)
-
-# For test set
+                probability = T)  
+ ```                              
+Prediction and calculating  error rate for test set  
+```{r}
 pred.svm = predict(model.svm,newdata = test.svm[,-24],probability = T)
-
 pred.svm.prob = as.data.frame(attr(pred.svm,"prob"))[,2]
-
 conf5 = table(predicted = pred.svm,true = test.svm$target)
 err2[5] = 1 - sum(diag(conf5))/sum(conf5)
-
-# For training set
+```  
+Prediction and calculating  error rate for  training set   
+```{r}
 pred.svm.train=predict(model.svm,newdata = train.svm[,-24],probability=T)
 conf5.train=table(predicted =predict(model.svm,newdata = train.svm[,-24],probability = T),true = train.svm$target)
 err1[5] = 1 - sum(diag(conf5.train))/sum(conf5.train)
-
-# ROC curve and AUC value
+```
+ROC curve and AUC value for both train and test set  
+```{r}
 par(mfrow=c(1,2))
 par(pty="s")
 
-#Train set
 roc(train.svm$target,as.data.frame(attr(predict(model.svm,newdata = train.svm[,-24],probability = T),"prob"))[,2],plot=T,
     col="#69b3a2",print.auc=T,legacy.axes=TRUE,percent = T,xlab="False Positive percentage",
     ylab="True Positive percentage",lwd=5,main="Train Set")
 
-#Test set
 roc(test.svm$target,pred.svm.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
     xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
 ```
@@ -820,22 +832,23 @@ Hyperparameter  Optimization  is  a  big  part  of  deep learning . The reason  
 
 ![](images/ANN.png)
 
-```{r}
-## Artifical Neural Network Classifier ##
 
+**Artifical Neural Network Classifier**
+```{r}
 data.ann =cbind(quanti.norm, quali.dummy, target)
 setDF(data.ann) #Converting into data.table
-
-#Test train split in 80:20 ratio
+```
+Splitting Test & train in 80:20 ratio  
+```{r}
 set.seed(666) #For Reproducibility
 
 ind=sample(nrow(data.ann),nrow(data.ann)*0.8,replace = F)
 train.ann=data.ann[ind,]
 test.ann=data.ann[-ind,]
-
 registerDoParallel(cl)
-
-## Tuning Hyperparameters for ANN
+```
+Tuning Hyperparameters for ANN  
+```{r}
 set.seed(666)
 param = trainControl(method = "cv",number = 5 , allowParallel = T,classProbs = T,summaryFunction = twoClassSummary,search = "grid")
 ann.fit = train(recode_factor( target,'0'="no",'1'="yes")~., train.ann,
@@ -844,15 +857,15 @@ ann.fit = train(recode_factor( target,'0'="no",'1'="yes")~., train.ann,
                 metric = "ROC",
                 trace = FALSE,
                 maxit = 200)
-
-# Stop parallel Computation
+```  
+Stop parallel Computation  
+```{r}
 stopCluster(cl)
 registerDoSEQ()
-
+```  
+```{r}
 #getModelInfo()$nnet
-
 ann.fit$bestTune
-
 [1] size decay
     3   0.1
     
@@ -860,25 +873,27 @@ plot(ann.fit)
 ```
 ![](images/plot_28.jpeg)
 ```{r}
-## Model Fitting based on the Grid Search
+Model Fitting based on the Grid Search  
+```{r}
 set.seed(666)
 model.ann = nnet(target~., data = train.ann, size =3, decay = 0.1,maxit=200)
-
-## For Test Set
+```
+Prediction and calculating  error rate for Test Set  
+```{r}
 pred.ann.prob = predict(model.ann, newdata= test.ann[,-88])
 pred.ann = ifelse(pred.ann.prob > 0.5, "1", "0" )
 conf6 = table(predict= pred.ann , true = test.ann$target)
 err2[6] = (conf6[1,2]+conf6[2,1])/sum(conf6)
-
-
-#For Training Set
-
+```
+Prediction and calculating  error rate for Training Set
+```{r}
 pred.ann.train.prob = predict(model.ann , newdata = train.ann[,-88])
 pred.ann.train = ifelse(pred.ann.train.prob > 0.5, "1", "0" )
 conf6.train = table(predicted = pred.ann.train, true = train.ann$target)
 err1[6] = 1-sum(diag(conf6.train))/sum(conf6.train)
-
-#ROC curve and AUC value
+```
+ROC curve and AUC value   
+```{r}
 par(mfrow=c(1,2))
 par(pty="s")
 
@@ -902,8 +917,9 @@ To evaluate the classification performances of the six aforementioned models we 
 *	Area under ROC for training set
 *	Area under ROC for test set
 
+
+**Classification Evaluation for the above six models**  
 ```{r}
-## Classification Evaluation for the above six models##
 classification.eval=data.frame(Model=c("Logistic","LDA","KNN","XGBoost","SVM","ANN"),Train.Error=err1,
                                Validation.Error=err2, Train.AUC=auc1, Validation.AUC=auc2)
 classification.eval
@@ -919,7 +935,7 @@ classification.eval
 ```
 From the above table, it can be observed that the model *XGBoost* has minimum error rate for test and train set and maximum AUC for train and test set. Hence, XGBoost classifier has definitely performed best among the six models as far as classification is concerned.
 
-## **_Sorting Smoothing Method_**
+**Sorting Smoothing Method**
 
 Earlier we have compared the six models based on the measures like error rate and AUC. And observed that XGBoost has performed better than the other five models in terms of least error rate and maximum AUC. However, in risk management study the confidence of a model on an individual sample to belong to the class predicted by the model is of far more significance rather than just binary classification results like, ‘default’ or ‘non-default’. By the term ‘confidence’, we mean the accuracy of predicted probability of default.
 
@@ -948,7 +964,7 @@ The scatter plots of real probability of default(estimated from *Sorting Smoothi
 ![](images/plot_25.jpeg)
 ![](images/plot_26.jpeg)
 
-## **_Evaluation of Representation Accuracy of Real Probability of Default For The Six Classifiers_**
+**Evaluation of Representation Accuracy of Real Probability of Default For The Six Classifiers**
 
 As mentioned above, we’ll evaluate the accuracy of predicted probabilities for the models based on the goodness of fit of the linear regression line Y=A+Bx, where Y is the estimated real probability from **Sorting Smoothing Method** and x being predicted probability from the models. The measures used are the following:
 *	Intercept
@@ -972,7 +988,7 @@ Prediction.eval
 ```
 From the above table it is clear that for the **ANN** classifier the intercept A is closest to zero and R² is highest and slope B is also quite close to 1. Therefore, the **Artificial Neural Network model** represents the real probability of default the best.
 
-## **_Summary of The Project_**
+**Summary of The Project**
 
 Among the six aforementioned classification techniques, the tree based boosting model i.e **XGBoost** has performed the best in terms of classification task based on error rate, and AUC measure. The differences among the error rates for the methods are not very significant, more or less same; however, the areas under ROC curve are quite distinct and our case AUC is of more significance in terms of accuracy since the target class that is default, has a very small proportion. XGBoost by nature generally performs very well for structured or tabular data and it has done so on our dataset as expected.
 
