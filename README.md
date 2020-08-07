@@ -533,7 +533,7 @@ We will use a for-loop to check for a range of values of k for which the model p
 **FItting K Nearest Neighbor classifier**
 
 Preprocessing the data
-# min-max normalization of quantitative features  
+#min-max normalization of quantitative features  
 ```{r}
 f=function(x)
 {
@@ -664,7 +664,7 @@ target=ifelse(target==1,0,1)#assiging 1 for default and 0 for non-default
 
 data_xgb=cbind(quanti,quali.dummy,target)
 ```
-Spliting the Test & train in 80:20 ratio  
+Spliting the train & test in 80:20 ratio  
 ```{r}
 set.seed(666) #For Reproducibility
 
@@ -838,7 +838,7 @@ Hyperparameter  Optimization  is  a  big  part  of  deep learning . The reason  
 data.ann =cbind(quanti.norm, quali.dummy, target)
 setDF(data.ann) #Converting into data.table
 ```
-Splitting Test & train in 80:20 ratio  
+Spliting the train & test set in 80:20 ratio   
 ```{r}
 set.seed(666) #For Reproducibility
 
@@ -872,7 +872,7 @@ ann.fit$bestTune
 plot(ann.fit)
 ```
 ![](images/plot_28.jpeg)
-```{r}
+
 Model Fitting based on the Grid Search  
 ```{r}
 set.seed(666)
@@ -935,7 +935,7 @@ classification.eval
 ```
 From the above table, it can be observed that the model *XGBoost* has minimum error rate for test and train set and maximum AUC for train and test set. Hence, XGBoost classifier has definitely performed best among the six models as far as classification is concerned.
 
-**Sorting Smoothing Method**
+## **_Sorting Smoothing Method_**
 
 Earlier we have compared the six models based on the measures like error rate and AUC. And observed that XGBoost has performed better than the other five models in terms of least error rate and maximum AUC. However, in risk management study the confidence of a model on an individual sample to belong to the class predicted by the model is of far more significance rather than just binary classification results like, ‘default’ or ‘non-default’. By the term ‘confidence’, we mean the accuracy of predicted probability of default.
 
