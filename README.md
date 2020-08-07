@@ -477,7 +477,11 @@ roc(test.logit$target,pred.logit,plot=T,col="navyblue",print.auc=T,legacy.axes=T
 ```{r}
 auc1[1]=0.772
 auc2[1]=0.769
-```
+```  
+
+Cummulative Gain Chart for The Logit Model
+
+![](images/plot_10.jpeg)
 
 ## **_Linear Discriminant Analysis_**
 
