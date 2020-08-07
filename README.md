@@ -331,8 +331,8 @@ plot_grid(q[[6]],q[[7]],q[[8]],q[[9]],q[[10]],q[[11]],nrow=3,ncol=2)
 
 ![](images/plot_8.jpeg)  
 
- Most of the default customers have delays in their repayment status.
-
+ Most of the default customers have delays in their repayment status.  
+ 
  
  ##  **_Observations_**
  
