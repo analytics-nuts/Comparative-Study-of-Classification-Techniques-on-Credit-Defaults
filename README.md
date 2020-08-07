@@ -941,7 +941,9 @@ Cummulative Gain Chart for ANN
 ![](images/plot_20.jpeg)  
 
 
-For a more detailed code on Cumulative Gain Charts ![visit here.](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults)
+For a more detailed code on Cumulative Gain Charts [visit here](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults).  
+
+
 ## **_Evaluation of Classification Performances_**
 
 To evaluate the classification performances of the six aforementioned models we employed the following measures:
@@ -975,11 +977,11 @@ Earlier we have compared the six models based on the measures like error rate an
 Since the real probability of default is unknown, the ‘Sorting Smoothing Method’, SSM is employed here to estimate the real probability of default.
 Firstly, according to the predictive probability from a model we sort the validation or test set in ascending order. Then SSM is used to estimate real probability as follows:
 
-Pi=(Yi-n+……+Yi-1+Yi+Yi+1+…..+Yi+n )/(2*n+1)
+P<sub>i</sub> = (Y<sub>i-n</sub>+……+Y<sub>i-1</sub>+Y<sub>i</sub>+Y<sub>i+1</sub> +…..+ Y<sub>i+n</sub> )/(2n+1)
 
-Pi=Estimated real probability of default for ith ordered sample in test set
+P<sub>i</sub>=Estimated real probability of default for ith ordered sample in test set
 
-Yi= ith order value of the binary response variable
+Y<sub>i</sub> = ith order value of the binary response variable
 
 And, n= number of data for smoothing. Here we’ll use n=50.
 
