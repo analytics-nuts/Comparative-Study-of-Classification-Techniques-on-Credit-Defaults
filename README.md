@@ -938,9 +938,10 @@ auc2[6] = auc(test.ann$target , pred.ann.prob)
 ```
 Cummulative Gain Chart for ANN  
 
-![](images\plot_20.jpeg)  
+![](images/plot_20.jpeg)  
 
 
+For a more detailed code on Cumulative Gain Charts ![visit here.](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults)
 ## **_Evaluation of Classification Performances_**
 
 To evaluate the classification performances of the six aforementioned models we employed the following measures:
