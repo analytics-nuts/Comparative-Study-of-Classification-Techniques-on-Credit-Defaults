@@ -168,7 +168,7 @@ names(credit)
 names(credit)[6]="PAY_1"
 names(credit)[24] = "target"
 ```
-Transforming the qualitative variables into factor variables in R as per the data description
+Transforming all the qualitative variables into factor variables in R as per the data description.
 ```{r}
 ##Transforming the variables SEX,MARRIAGE,EDUCATION and default payment into factors
 df=as.data.frame(credit)
@@ -237,10 +237,9 @@ Now we’ll scrutinize the correlations between the quantitative variables and w
 ```{r}
 ##Correlation analysis and Correlogram plot
 
-df=credit[,c(-2:-4,-24)] #Considering only quantitative variables
-#cor(credit[,c(-2:-4,-24)])
-#ggpairs(df,aes(color=credit$`default payment next month`),title = "Correlogram")
+df=as.data.frame(data.matrix(credit[,c(-2:-4,-6:-11,-24)]))
 ggcorr(df,method=c("everything", "pearson"))+ggtitle("Correlation Steps")
+
 rm(df)
 ```
 
@@ -250,7 +249,7 @@ It can be observed that the correlation among the bill amounts for 6 months are 
  
 ## **_Visualizations_**
 
-We’ll now dive into the visualizations of the dataset in hand. Several  plots like density plot for credit amount , histogram of age, several bar-plots for marital status and gender also dot-plots for credit amount versus payment statuses( PAY_1 ,..,PAY_6) and bill amounts (BILL_AMT1 ,….,BILL_AMT6).
+We’ll now dive into the visualizations of the dataset in hand. Several  plots like density plot for credit amount , histogram of age, several bar-plots for marital status and gender also dot-plots for Credit Amount versus Payment Statuses( PAY_1 ,..,PAY_6) and Bill Amounts (BILL_AMT1 ,….,BILL_AMT6).
 
 ```{r}
 ## Visualizing the data
@@ -263,7 +262,7 @@ ggplot(credit,aes(x=credit$LIMIT_BAL,fill=credit$target))+
 
 ![](images/plot_3.jpeg)  
 
-We see Customers with relatively lower credit amount tend to be the defaulters
+We see Customers with relatively lower credit amount tend to be the defaulters.
 
 ```{r}
 ggplot(credit,aes(x=credit$AGE,fill=credit$target))+
@@ -274,7 +273,7 @@ ggplot(credit,aes(x=credit$AGE,fill=credit$target))+
 
 ![](images/plot_4.jpeg)   
 
-Customers with age between 20-35 have relatively higher no of defaults
+Customers with age between 20-35 have relatively higher number of defaults.
 
 ```{r}
 ggplot(credit,aes(x=credit$MARRIAGE,group=credit$target))+
@@ -285,7 +284,7 @@ ggplot(credit,aes(x=credit$MARRIAGE,group=credit$target))+
 ```  
 ![](images/plot_5.jpeg)  
 
-No of default is slightly higher for married customers  
+Number of default is slightly higher for single customers.
 
 ```{r}
 ggplot(credit,aes(x=credit$SEX,fill=credit$target))+
@@ -304,8 +303,10 @@ Now, we arrange the scatter plots of Limit Balance & Bill Amounts in a grid, col
 p=list()                        #creating empty plot list
 for(i in 12:17){
   p[[i]]= ggplot(credit,aes(x=credit[,1],y=credit[,i],color=credit$target))+
-    geom_point(show.legend = T)+xlab("Limit_Bal")+ylab(paste0("Bill_Amt",i-11,sep=""))+ggtitle(paste0("Limit_bal vs Bill_amt",i-11,sep=""))
-  
+                geom_point(show.legend = T)+
+                xlab("Limit_Bal")+
+                ylab(paste0("Bill_Amt",i-11,sep=""))+
+                ggtitle(paste0("Limit_bal vs Bill_amt",i-11,sep=""))
 }
 
 plot_grid(p[[12]],p[[13]],p[[14]],p[[15]],p[[16]],p[[17]],nrow=3,ncol=2)
@@ -319,8 +320,10 @@ We make another grid of scatter plots of Repayment Statuses with Limit Balance, 
 q=list()             #creating empty plot list
 for(i in 6:11){
   q[[i]]=ggplot(credit,aes(x=credit[,i],y=credit[,1],color=credit$target,palette="jco"))+
-    geom_point(show.legend = T)+xlab(paste0("PAY_",i-5,sep=""))+ylab("Limit Bal")+
-    ggtitle(paste0("PAY_",i-5,"Vs Limit Bal",sep=""))
+               geom_point(show.legend = T)+
+               xlab(paste0("PAY_",i-5,sep=""))+
+               ylab("Limit Bal")+
+               ggtitle(paste0("PAY_",i-5,"Vs Limit Bal",sep=""))
 }
 
 plot_grid(q[[6]],q[[7]],q[[8]],q[[9]],q[[10]],q[[11]],nrow=3,ncol=2)
@@ -328,7 +331,7 @@ plot_grid(q[[6]],q[[7]],q[[8]],q[[9]],q[[10]],q[[11]],nrow=3,ncol=2)
 
 ![](images/plot_8.jpeg)  
 
- Most of the default customers have delays in repayment status
+ Most of the default customers have delays in their repayment status.
 
  
  ##  **_Observations_**
@@ -346,41 +349,20 @@ Clients with positive repayment statuses are majority of defaults which is also 
 There are some undocumented labels in the factor variables like EDUCATION and MARRIAGE. For example, the labels 4, 5 and 6 of EDUCATION are not documented clearly in the description of the dataset, so we merge these labels with the label 0 that implies qualification other than high school, graduate and university.
 
 Similarly, we merge the labels 0 and 3 for MARRIAGE factor.As 3 implies divorce and 0 is other.
-These changes are appearing reasonable to me due to the updates in the definition of the variables in the discussion zone for this dataset in [Kaggle by ezboral](https://www.kaggle.com/uciml/default-of-credit-card-clients-dataset/discussion/34608).
+These changes are appearing reasonable to me due to the updates in the definition of the variables in the discussion zone for this dataset in [Kaggle by ezboral](https://www.kaggle.com/uciml/default-of-credit-card-clients-dataset/discussion/34608).  
+
+Redefining the variables Education,Marriage according to the revised description of the dataset.
 
  ```{r}
- ## Feature Engineering
+## Feature Engineering
 
-##Redefining the variables EDUCATIOn,Marriage according to the revised description of the dataset.
 credit$EDUCATION = recode_factor(credit$EDUCATION, '4' = "0", '5' = "0", '6' = "0",.default = levels(credit$EDUCATION))
-#table(credit$EDUCATION)
-
 credit$MARRIAGE = recode_factor(credit$MARRIAGE, '0'="3",.default = levels(credit$MARRIAGE))
-#table(credit$MARRIAGE)
 ```
 
-Of course there are scopes to go deeper into engineering more features like variable transformations, important variables selection etc. However, these are good when working with one or two models based on their criteria for good fit, but in study of a good no of models too much upgradation in features may lead to misleading results. Therefore, we won’t indulge in any further engineering.
+Of course there are scopes to go deeper into engineering more features like variable transformations, important variables selection etc. However, these are good when working with one or two models based on their criteria for good fit, but in study of a good no of models too much upgradation in features may lead to misleading results and a loss of interpretability. Therefore, we won’t indulge in any further engineering.
  
 ## **_Data pre-processing_**
-
-First converting the repayment statuses PAY_1 to PAY_6 into factor variables and storing the ‘default.payment.next.month’ in a factor object, named ‘target’.
-
-```{r}
-df=as.data.frame(credit)
-df[c("PAY_1","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")]= lapply(df[c("PAY_1","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6")]
-                                                                        ,function(x) as.factor(x))
-
-credit=df
-rm(df)
-target=credit$`default payment next month`
-(table(target)/length(target))
-```
- 
-```{r}
-target
-     0      1 
-0.7788 0.2212
-``` 
 
 We divide the whole data into two parts, quantitative and qualitative for future reference and one hot encoding (dummy encoding). 
 
@@ -738,7 +720,7 @@ The Support Vector Machine (SVM) algorithm is a popular machine learning tool th
 
 In addition to performing linear classification, SVMs can efficiently perform a non-linear classification using what is called the Kernel- trick, implicitly mapping their inputs into high dimensional feature spaces.  SVM  algorithm  use a  set  of  mathematical   function  that are defined as the  kernel . The function of kernel is to take data as input and transform it into the required form. Different SVM algorithms use different types of kernel functions, namely *linear, non-linear, polynomial, radial basis function (RBF), sigmoid*.Introduce Kernel functions for sequence data, graphs, texts, images as well as vectors. The most used type of Kernel function is RBF. Because it has localized and finite response along the entire x-axis.
 
-SVM  Hyperparameter  tuning  using  GridSearch
+SVM  Hyperparameter tuning  using  GridSearch
 
 A  Machine  Learning  model  is defined as  a  mathematical  model  with  a number   of  parameters that need  to be  learned from the data . However, there are some parameters, known as Hyperparameters.  SVM also has some hyperparameters (like what C or gamma (γ) values to use) and  finding optimal  hyperparameter  is a very hard task to  solve . The effectiveness of SVM depends  on the selection of Kernel’s parameter  C . A common choice is a Gaussian Kernel, which has a single  parameter  gamma (γ) . The best combination of C and gamma (γ) is often selected by Grid Search with exponentially growing sequences of C and ( ) . Typically, each combination of parameter choices is checked using cross-validation, and the parameters with best cross- validation accuracy are picked as the best tuned one.
 
