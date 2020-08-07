@@ -226,7 +226,7 @@ ggcorr(df,method=c("everything", "pearson"))+ggtitle("Correlation Steps")
 rm(df)
 ```
 
-![](images/plot_2.jpeg)
+![](images/corplot_2.jpeg)
 
 It can be observed that the correlation among the bill amounts for 6 months are on the higher side. All other features have low or moderate correlation among them. 
  
