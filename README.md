@@ -404,7 +404,7 @@ auc1=numeric()
 auc2=numeric()
 ```
  
-## **_Test-train split of the data_**
+## **_Test-Train split of the data_**
 
 We split the combined data-frame(or data-table) into two parts. One is training set, consists of 80% of the data, on which the model(s) will be trained and the other one is test set, consists of remaining 20% of the data, on which the model(s) will be validated.
 
@@ -525,7 +525,12 @@ roc(test.logit$target,pred.lda.prob,plot=T,col="navyblue",print.auc=T,legacy.axe
 ```{r}
 auc1[2]=0.770
 auc2[2]=0.768
-```
+```  
+
+Cummulative Gain Chart for The LDA
+
+![](images/plot_12.jpeg)
+
 
 ## **_K-Nearest Neighbor_**
 
@@ -620,7 +625,12 @@ roc(test.knn$target,knn.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,
 ```{r}
 auc1[3]=0.814
 auc2[3]=0.751
-```
+```  
+
+Cummulative Gain Chart for The K-NN Model
+
+![](images/plot_14.jpeg)
+
 
 ## **_Extreme Gradient Boost_**
 
@@ -734,7 +744,13 @@ roc(response=as.factor(test_xgb$target),predictor=xgb.prob,percent = T,plot = T,
 ```{r}
 auc1[4]=0.874
 auc2[4]=0.785
-```
+```  
+
+
+Cummulative Gain Chart for The Extreme Gradient Boosting
+
+![](images/plot_16.jpeg)
+
 
 ## **_Kernel SVM_**
 
@@ -746,7 +762,7 @@ SVM  Hyperparameter tuning  using  GridSearch
 
 A  Machine  Learning  model  is defined as  a  mathematical  model  with  a number   of  parameters that need  to be  learned from the data . However, there are some parameters, known as Hyperparameters.  SVM also has some hyperparameters (like what C or gamma (γ) values to use) and  finding optimal  hyperparameter  is a very hard task to  solve . The effectiveness of SVM depends  on the selection of Kernel’s parameter  C . A common choice is a Gaussian Kernel, which has a single  parameter  gamma (γ) . The best combination of C and gamma (γ) is often selected by Grid Search with exponentially growing sequences of C and ( ) . Typically, each combination of parameter choices is checked using cross-validation, and the parameters with best cross- validation accuracy are picked as the best tuned one.
 
-![](images/SVM.png)
+![](images/SVM.png = 600x600)
 
 **Fitting Support Vector Machines**
  Data_for_SVM  
@@ -810,31 +826,37 @@ roc(test.svm$target,pred.svm.prob,plot=T,col="navyblue",print.auc=T,legacy.axes=
 ```{r}
 auc1[5] = 0.885
 auc2[5] = 0.670
-```
+```  
+
+Cummulative Gain Chart for The SVM
+
+![](images/plot_18.jpeg)
+
 
 ## **_ARTIFICIAL NEURAL NETWORK (ANNs)_**
 
-Artificial Neural  Networks   (ANNs)  is  a   computational  model  based  on  the  structure  and  functions  of  biological  neural network . Information   that  flows  through  the  network  affects  the structure of   the  ANN   because  a   neural  network   changes  or  learns  , in a sense -  based on that   input  and  output  .  ANNs    are  considered  non-linear  statistical  data  modeling  tools  where   the   complex  relationships   between  inputs  and  outputs  are modeled  or   pattern  are  found  .
-**COMPONENTS  OF  ANNs**
+Artificial Neural  Networks   (ANNs)  is  a   computational  model  based  on  the  structure  and  functions  of  biological  neural network . Information   that  flows  through  the  network  affects  the structure of   the  ANN   because  a   neural  network   changes  or  learns  , in a sense -  based on that   input  and  output  .  ANNs    are  considered  non-linear  statistical  data  modeling  tools  where   the   complex  relationships   between  inputs  and  outputs  are modeled  or   pattern  are  found  
 
-*Neurons* 
+**_COMPONENTS  OF  ANNs_**
+
+* *Neurons* 
 
 ANNs are  composed  of  artificial  neural  networks  which  are  conceptually  derived  from  biological  neurons. Each  artificial neural  network   has  inputs  and  produce  output  which  can be  sent  to multiple neurons . 
 
-*Connections  and  Weights*
+* *Connections  and  Weights*
 
 The network  consists  of  connections , each  connection  providing  the  output  of one  neuron as  an input to another  neuron .To  find  the  output  of  the  neuron   , first   we  take the weighted   sum  of  all  the  inputs  ,  weighted  by the weights  of the  connections  from the inputs  to the neurons .  The weighted  sum then  passed  through  a  (usually non-linear) activation function  to produce the output .
 
-*Propagation  Function*
+* *Propagation  Function*
 
 The  propagation function  computes  the  input  to  a neuron from the  outputs  of  itd predecessor  neurons and  their  connections as  a weighted  sum.
 
-*Hyperparameter*
+* *Hyperparameter*
 
 A   hyperparameter   is  a constant   parameter  whose  value  is  a  set   before  the  learning  process  begins .  The  values   of the  parameters  are  derived  via  learning .Examples  of   the hyperparameter  includes  learning  rate , the  number of  hidden  layers and  the batch size  .
 Hyperparameter  Optimization  is  a  big  part  of  deep learning . The reason  is  that   neural  networks  are notoriously   difficult   to  configure   and there  are a lot  of  parameters  that we need to  set .  on the  top  of  that  , individual  models  can  be very slow  to train. That is why  we use  the grid search  capability  to  tune  the  hyperparameters for the model.
 
-![](images/ANN.png)
+![](images/ANN.png= 600x600)
 
 
 **Artifical Neural Network Classifier**
@@ -906,12 +928,19 @@ roc(train.ann$target , pred.ann.train.prob , plot = T,col = "#69b3a2", print.auc
 
 roc(test.ann$target , pred.ann.prob , plot = T,col = "navyblue", print.auc = T, legacy.axes = TRUE , percent = T,
     xlab = "False Positive percentage", ylab = "True Positive percentage",lwd = 5, main = "Test Set")
-    
-auc1[6] = auc(train.ann$target , pred.ann.train.prob)
-auc2[6] = auc(test.ann$target , pred.ann.prob)      
-```
-![](images/plot_19.jpeg)
+```  
 
+![](images/plot_19.jpeg)  
+
+```{r}
+auc1[6] = auc(train.ann$target , pred.ann.train.prob)
+auc2[6] = auc(test.ann$target , pred.ann.prob)
+```
+Cummulative Gain Chart for ANN  
+
+![](images\plot_20.jpeg)
+
+For a detailed code on the cumulative gain charts ![visit here.](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults)
 
 ## **_Evaluation of Classification Performances_**
 
