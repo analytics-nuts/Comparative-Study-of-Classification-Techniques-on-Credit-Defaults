@@ -334,7 +334,7 @@ plot_grid(q[[6]],q[[7]],q[[8]],q[[9]],q[[10]],q[[11]],nrow=3,ncol=2)
  Most of the default customers have delays in their repayment status.  
  
  
- ##  **_Observations_**
+## **_Observations_**
  
  The density of credit amount is high in the range 0 to 250000 for the clients with default of payment. Therefore, clients with relatively lower credit are more likely to be default. Similarly, from the histogram of age it is clear that most of the default clients are in the age bracket 20 to 40.
  
