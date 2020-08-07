@@ -431,37 +431,45 @@ For each of the six models we’ll perform the task according to the following t
 
 Logistic regression is a binary classification algorithm used to model the probability of an individual belonging to a class. Generally a binary response variable with two category (in our case default payment) denoted by ‘0’ and ‘1’ is regressed by logistic regression. In logistic model, the log of odds of the binary response to be ‘1’ is predicted by a linear regression equation that can include continuous as well as factor variables. However, the factor variables are needed to be encoded as one indicator variable for each label. The corresponding predicted probability of the value labeled as ‘1’ is converted to the class ‘1’ or ‘0’ by using threshold value.
 
+Fitting a logistic model
 ```{r}
-##Fitting a logistic model##
-
 model.logit=glm(target~.,data=train.logit,family="binomial")
 
 summary(model.logit)
+```  
 
-#For test set
+Making prediction for the train set and test set  
+```{r}
+
 pred.logit=predict(model.logit,type="response",newdata = test.logit)
 
 pred.def=ifelse(pred.logit>0.5,"1","0")
+pred.def=ifelse(predict(model.logit,type="response",newdata = train.logit)>0.5,"1","0")
+```  
+Calculate error rate  for both train and test set
+```{r}  
 
 conf1=table(predict=pred.def,true=test.logit$target)
-err2[1]= 1 - sum(diag(conf1))/sum(conf1)
-
-#For training set
-pred.def=ifelse(predict(model.logit,type="response",newdata = train.logit)>0.5,"1","0")
-
 conf1.train=table(predict=pred.def,true=train.logit$target)
-err1[1]= 1 - sum(diag(conf1.train))/sum(conf1.train)
 
-##Ploting ROC curve and AUC for test and train set
+err2[1]= 1 - sum(diag(conf1))/sum(conf1)
+err1[1]= 1 - sum(diag(conf1.train))/sum(conf1.train)
+```  
+Ploting ROC curve and AUC for test and train set
+```{r}
 
 par(mfrow=c(1,2))
 par(pty="s")
+```
+For training set  
+```{r}  
 
-#For training set
 roc(train.logit$target,model.logit$fitted.values,plot=T,col="#69b3a2",print.auc=T,legacy.axes=TRUE,percent = T,
     xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Train Set")
+```
+For test set
+```{r)
 
-#For test set
 roc(test.logit$target,pred.logit,plot=T,col="navyblue",print.auc=T,legacy.axes=TRUE,percent = T,
     xlab="False Positive percentage",ylab="True Positive percentage",lwd=5,main="Test Set")
 ```
