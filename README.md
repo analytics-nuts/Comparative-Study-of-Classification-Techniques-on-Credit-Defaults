@@ -370,6 +370,8 @@ We divide the whole data into two parts, quantitative and qualitative for future
 ##Partitioning the whole data in quantitative and qualitative parts and defining the target
 quanti=credit[,c(-2:-4,-6:-11,-24)]
 quali=credit[,c(2:4,6:11)]
+target=credit$target
+(table(target)/length(target))
 ```
  
 Then combine all the features quantitative and qualitative into one single data-frame.
