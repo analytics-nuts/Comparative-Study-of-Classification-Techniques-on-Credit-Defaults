@@ -34,7 +34,7 @@ The sole purpose of this project is to compare the six machine-learning models, 
  
 ## **About The Data Set**
 
-Our dataset *‘Default of credit card clients’* consists of informations about transactions from April 2005 to September 2005 of 30000 clients who were credit holders in a bank in Taiwan. This dataset has binary response variable ‘default.payment.next.month’ that takes the value 1 if the corresponding client has default payment and 0 otherwise. Out of 30000 clients 6636(22.12%) were with default payment. There are 23 other independent or explanatory variables:
+Our dataset [*‘Default of credit card clients’*](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults) consists of informations about transactions from April 2005 to September 2005 of 30000 clients who were credit holders in a bank in Taiwan. This dataset has binary response variable ‘default.payment.next.month’ that takes the value 1 if the corresponding client has default payment and 0 otherwise. Out of 30000 clients 6636(22.12%) were with default payment. There are 23 other independent or explanatory variables:
 
 * 	LIMIT_BAL: Amount of the given credit(NT dollar), it includes both the individual consumer credit as well as the person’s family credit
 * 	SEX: 1=male and 2= female
