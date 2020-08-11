@@ -14,6 +14,16 @@ predicting the target class as well as their accuracy for representing the real 
 class from the perspective of risk management using the *Sorting Smoothing Method*. In this project, we summoned the **“Default of credit card clients, Taiwan 2005”** 
 dataset available at [UCI machine-learning repository](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients). 
 
+## **What is Default**
+
+When a customer accepts a credit card from a bank or issuer he/she agrees to certain terms and condition such as he/she needs to make their minimum payment by the due data listed on their credit card statements. If the consumer fails to make the payment for the debt by the due date, the issuer mark the credit card as default and might charge a penulty rate, decreasing credit link and and in case of serious delniquency close the account.
+
+## **How Credit Card Default Happens**
+
+Sometimes credit card-issuing banks in order to gain large amount of market share issue credit cards to unqualified clients without suffient information about their ability of repayment of the bills. When the card holders overuse their cards to consume servises and goods irrespective of their repayment ability of the bills, they accumulate a heavy debts.
+
+In the area of consumer finance it is pivotal for the card issuing banks to be able to estimate the chance for a card holder to become default for risk analysis and approving the credit card applications.   
+
 
 ## **Objective**
 
@@ -765,7 +775,7 @@ SVM  Hyperparameter tuning  using  GridSearch
 
 A  Machine  Learning  model  is defined as  a  mathematical  model  with  a number   of  parameters that need  to be  learned from the data . However, there are some parameters, known as Hyperparameters.  SVM also has some hyperparameters (like what C or gamma (γ) values to use) and  finding optimal  hyperparameter  is a very hard task to  solve . The effectiveness of SVM depends  on the selection of Kernel’s parameter  C . A common choice is a Gaussian Kernel, which has a single  parameter  gamma (γ) . The best combination of C and gamma (γ) is often selected by Grid Search with exponentially growing sequences of C and ( ) . Typically, each combination of parameter choices is checked using cross-validation, and the parameters with best cross- validation accuracy are picked as the best tuned one.
 
-![](images/SVM.png = 600x600)
+![](images/SVM.png)
 
 **Fitting Support Vector Machines**
  Data_for_SVM  
@@ -859,7 +869,7 @@ The  propagation function  computes  the  input  to  a neuron from the  outputs 
 A   hyperparameter   is  a constant   parameter  whose  value  is  a  set   before  the  learning  process  begins .  The  values   of the  parameters  are  derived  via  learning .Examples  of   the hyperparameter  includes  learning  rate , the  number of  hidden  layers and  the batch size  .
 Hyperparameter  Optimization  is  a  big  part  of  deep learning . The reason  is  that   neural  networks  are notoriously   difficult   to  configure   and there  are a lot  of  parameters  that we need to  set .  on the  top  of  that  , individual  models  can  be very slow  to train. That is why  we use  the grid search  capability  to  tune  the  hyperparameters for the model.
 
-![](images/ANN.png= 600x600)
+![](images/ANN.png)
 
 
 **Artifical Neural Network Classifier**
@@ -944,7 +954,7 @@ Cummulative Gain Chart for ANN
 ![](images/plot_20.jpeg)  
 
 
-For a more detailed code on Cumulative Gain Charts [visit here](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults).  
+For a more detailed code on Cumulative Gain Charts [visit here](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults/tree/master/bin).  
 
 
 ## **_Evaluation of Classification Performances_**
@@ -992,7 +1002,7 @@ Now treating this estimated real probability of default as real we plot a scatte
 Then we fit a linear regression line Y=A+Bx, from the scatter plot.
 Lastly, the model for which A is closest to 0, B is closest to 1 and R² is highest, is considered as the best model to represent the real probability of default.  
 
-To see the detailed code for the sorting-smoothing method [visit here](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults).
+To see the detailed code for the sorting-smoothing method [visit here](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults/tree/master/bin).
 
 
 The scatter plots of real probability of default(estimated from *Sorting Smoothing Method*)(Y) versus the predicted probability from the model (x) along with the fitted linear regression line for each of the six classifiers are as follow: 
@@ -1035,7 +1045,7 @@ Among the six aforementioned classification techniques, the tree based boosting 
 On the other hand, in terms of prediction accuracy of probability of default, the method produced by **Artificial Neural Networks (ANNs)** outperforms the other five classification techniques in terms of highest R squared value, regression coefficient (closest to 1) and intercept (closest to zero). Therefore, the classification technique derived from ANNs represents the real probability of default better than the other methods such as discriminant analysis, KNN. In general, ANN performs well in the area of pattern recognition and in a sense; this method has done exactly that, distinguishing a kind of pattern among the clients with credit card, default and non-default, by *representing the real probability of default* which is more important in risk analysis than just binary classification.
 
 ## Reference:
-[1] Yeh, I. C., & Lien, C. H. (2009). The comparisons of data mining techniques for the predictive accuracy of probability of default of credit card clients. Expert Systems with Applications, 36(2), 2473-2480.
+[1] [Yeh, I. C., & Lien, C. H. (2009). The comparisons of data mining techniques for the predictive accuracy of probability of default of credit card clients. Expert Systems with Applications, 36(2), 2473-2480.](https://scholar.google.co.in/scholar?q=Yeh,+I.+C.,+%26+Lien,+C.+H.+(2009).+The+comparisons+of+data+mining+techniques+for+the+predictive+accuracy+of+probability+of+default+of+credit+card+clients.+Expert+Systems+with+Applications,+36(2),+2473-2480.&hl=en&as_sdt=0&as_vis=1&oi=scholart)
 
 
 
