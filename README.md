@@ -12,7 +12,7 @@
 This project is an attempt toward a comparative study among six different machine- learning models for their accuracy in 
 predicting the target class as well as their accuracy for representing the real probability of an individual belonging to the actual 
 class from the perspective of risk management using the *Sorting Smoothing Method*. In this project, we summoned the **“Default of credit card clients, Taiwan 2005”** 
-dataset available at [UCI machine-learning repository](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients).
+dataset available at [UCI machine-learning repository](https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients). 
 
 
 ## **Objective**
@@ -987,7 +987,9 @@ And, n= number of data for smoothing. Here we’ll use n=50.
 
 Now treating this estimated real probability of default as real we plot a scatter plot diagram, with predicted probability from model along the X axis and the estimated real probability along the Y axis.
 Then we fit a linear regression line Y=A+Bx, from the scatter plot.
-Lastly, the model for which A is closest to 0, B is closest to 1 and R² is highest, is considered as the best model to represent the real probability of default.
+Lastly, the model for which A is closest to 0, B is closest to 1 and R² is highest, is considered as the best model to represent the real probability of default.  
+
+To see the detailed code for the sorting-smoothing method [visit here](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults).
 
 
 The scatter plots of real probability of default(estimated from *Sorting Smoothing Method*)(Y) versus the predicted probability from the model (x) along with the fitted linear regression line for each of the six classifiers are as follow: 
@@ -1029,7 +1031,8 @@ Among the six aforementioned classification techniques, the tree based boosting 
 
 On the other hand, in terms of prediction accuracy of probability of default, the method produced by **Artificial Neural Networks (ANNs)** outperforms the other five classification techniques in terms of highest R squared value, regression coefficient (closest to 1) and intercept (closest to zero). Therefore, the classification technique derived from ANNs represents the real probability of default better than the other methods such as discriminant analysis, KNN. In general, ANN performs well in the area of pattern recognition and in a sense; this method has done exactly that, distinguishing a kind of pattern among the clients with credit card, default and non-default, by *representing the real probability of default* which is more important in risk analysis than just binary classification.
 
-
+## Reference:
+[1] Yeh, I. C., & Lien, C. H. (2009). The comparisons of data mining techniques for the predictive accuracy of probability of default of credit card clients. Expert Systems with Applications, 36(2), 2473-2480.
 
 
 
