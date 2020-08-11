@@ -427,7 +427,8 @@ For each of the six models we’ll perform the task according to the following t
 *	Making prediction on both train and test set
 *	Calculate error rate for both the sets and store them in two vector
 *	Plotting ROC curve for both the sets and store the area under curve(AUC) in two vectors
-*	Lastly plot a cumulative gain chart for test set. 
+*	Lastly plot a cumulative gain chart for test set. For detailed codes of Cummulative Gain chart [visit here](https://github.com/analytics-nuts/Comparative-Study-of-Classification-Techniques-on-Credit-Defaults).  
+
 
 ## **_Logistic Regression_**
 
