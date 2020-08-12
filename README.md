@@ -778,7 +778,8 @@ A  Machine  Learning  model  is defined as  a  mathematical  model  with  a numb
 ![](images/SVM.png)
 
 **Fitting Support Vector Machines**
- Data_for_SVM  
+
+Data_for_SVM  
 ```{r}
 data.svm = cbind.data.frame(quanti.norm,quali,target) # SVM accepts factor variables
 data.svm = setDT(data.svm)
@@ -1014,7 +1015,7 @@ The scatter plots of real probability of default(estimated from *Sorting Smoothi
 ![](images/plot_25.jpeg)
 ![](images/plot_26.jpeg)
 
-**Evaluation of Representation Accuracy of Real Probability of Default For The Six Classifiers**
+## **Evaluation of Representation Accuracy of Real Probability of Default For The Six Classifiers**
 
 As mentioned above, we’ll evaluate the accuracy of predicted probabilities for the models based on the goodness of fit of the linear regression line Y=A+Bx, where Y is the estimated real probability from **Sorting Smoothing Method** and x being predicted probability from the models. The measures used are the following:
 *	Intercept
