@@ -16,7 +16,7 @@ dataset available at [UCI machine-learning repository](https://archive.ics.uci.e
 
 ## **What is Default**
 
-When a customer accepts a credit card from a bank or issuer he/she agrees to certain terms and condition such as he/she needs to make their minimum payment by the due data listed on their credit card statements. If the consumer fails to make the payment for the debt by the due date, the issuer mark the credit card as default and might charge a penulty rate, decreasing credit link and and in case of serious delniquency close the account.
+When a customer accepts a credit card from a bank or issuer, he/she agrees to certain terms and condition such as he/she needs to make their minimum payment by the due date listed on their credit card statements. If the consumer fails to make the payment for the debt by the due date, the issuer mark the credit card as default and might charge a penulty rate, decreasing credit limit and and in case of serious delniquency, close the account.
 
 ## **How Credit Card Default Happens**
 
